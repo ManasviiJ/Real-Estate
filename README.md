@@ -13,9 +13,11 @@ The new computer project - A Real Estate Management App
 3. a home page that displays a search bar (working) and trending properties/ newly added properties
 
 > # To Import the MySQL Data
-source <File\\Path\\with\\double\\slashes>\\<DumpFileName.sql>
+use re_estate;
+source <File\\Path\\with\\double\\slashes>\\<DumpFileName.sql>;
 ex:
-source D:\\comp_project\\code\\DumpFileName.sql
+use re_estate;
+source D:\\comp_project\\code\\DumpFileName.sql;
 
 > # PROMPTS
 🏡 Profile Page Contents
