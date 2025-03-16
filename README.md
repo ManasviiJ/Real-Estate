@@ -14,7 +14,7 @@ SUGGESTION: Create a new folder in your local pc and copy all files of Real-Esta
 4. sidebar that contains buttons according to user role
 3. a home page that displays a search bar (working) and trending properties/ newly added properties
 
-> # To Import the MySQL Data
+> ### To Import the MySQL Data
 use re_estate;
 source <File\\Path\\with\\double\\slashes>\\<DumpFileName.sql>;
 ex:
