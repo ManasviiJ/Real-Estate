@@ -1,5 +1,6 @@
 # Real-Estate
-The new computer project - A Real Estate Management App
+NOTE: Do not directly edit the main_tk file instead send the code snippets to owner via Gmail. All data added to your local MySQL databases will not be reflected in the repository unless data has been imported to owner's database. For that contact owner.
+SUGGESTION: Create a new folder in your local pc and copy all files of Real-Estate in the folder and edit. Don't forget to import the MySQL data in your local database.
 
 > # FEATURES ADDED:
 1. a sign up page with working sign in and forgot password
