@@ -1,7 +1,7 @@
 # Real-Estate
 The new computer project - A Real Estate Management App
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> FEATURES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+> FEATURES
 
 FEATURES ADDED:
 1. a sign up page with working sign in and forgot password
@@ -14,7 +14,7 @@ FEATURES TO ADD:
 4. sidebar that contains buttons according to user role
 3. a home page that displays a search bar (working) and trending properties/ newly added properties
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> PROMPTS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+> PROMPTS
 ## **🏡 Profile Page Contents**
 ### **1️⃣ Common Sections (For All Users)**
 - **Profile Picture** (Editable)  
@@ -45,7 +45,7 @@ FEATURES TO ADD:
 - **Commission Dashboard** (Earned commissions, pending payments)  
 - **Documents & Agreements** (Upload property papers, contracts)
 
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> THE BASIC BLUEPRINT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+> THE BASIC BLUEPRINT
 Blueprint for Real Estate Management
 
 
