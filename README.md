@@ -22,28 +22,28 @@ The new computer project - A Real Estate Management App
 - **Role** (Owner, Tenant, Agent)  
 - **Password Reset Option**  
 
-### **2️⃣ For Property Owners**
+ **2️⃣ For Property Owners**
 - **Listed Properties** (Grid/List View with images, price, status)  
 - **Earnings Dashboard** (Rental income, pending payments, analytics)  
 - **Tenant Requests** (Maintenance requests, inquiries)  
 - **Add New Property** (Button to add new listings)  
 - **Property Performance Reports** (Occupancy rate, rental trends)  
 
-### **3️⃣ For Tenants**
+ **3️⃣ For Tenants**
 - **Rented Property Details** (Address, rent amount, lease duration)  
 - **Rent Payment Status** (Paid, Due, Overdue)  
 - **Maintenance Requests** (Raise & track service requests)  
 - **Lease Documents** (Access signed lease agreements)  
 - **Payment History** (List of past payments)  
 
-### **4️⃣ For Real Estate Agents**
+ **4️⃣ For Real Estate Agents**
 - **Managed Properties** (Properties assigned to them)  
 - **Client Inquiries** (New leads, interested buyers/renters)  
 - **Upcoming Appointments** (Schedule with clients)  
 - **Commission Dashboard** (Earned commissions, pending payments)  
 - **Documents & Agreements** (Upload property papers, contracts)
 
-> THE BASIC BLUEPRINT
+> # THE BASIC BLUEPRINT
 Blueprint for Real Estate Management
 
 
