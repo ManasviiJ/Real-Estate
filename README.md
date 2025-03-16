@@ -1,22 +1,20 @@
 # Real-Estate
 The new computer project - A Real Estate Management App
 
-> FEATURES
-
-FEATURES ADDED:
+> # FEATURES ADDED:
 1. a sign up page with working sign in and forgot password
 3. a profile page that displays minimum user data and option to log out
 0. displays role in profile page
 1. changing profile photo -> integrate w database
 
-FEATURES TO ADD:
+> # FEATURES TO ADD:
 2. password reset option in profile page
 4. sidebar that contains buttons according to user role
 3. a home page that displays a search bar (working) and trending properties/ newly added properties
 
-> PROMPTS
-## **🏡 Profile Page Contents**
-### **1️⃣ Common Sections (For All Users)**
+> # PROMPTS
+🏡 Profile Page Contents
+1️⃣ Common Sections (For All Users)
 - **Profile Picture** (Editable)  
 - **Full Name**  
 - **Email Address**  
