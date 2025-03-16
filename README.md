@@ -44,48 +44,104 @@ The new computer project - A Real Estate Management App
 - **Documents & Agreements** (Upload property papers, contracts)
 
 > # THE BASIC BLUEPRINT
-Blueprint for Real Estate Management
+# **Blueprint for Real Estate Management App**
 
+## **User Flow**
+1. **User Opens App**
+   - *Extra Feature:* Auctions by Banks
 
-User opens app
-(Extra feature- auctions by banks)
-Login page - user ID and password (existing) or create a new account, forgot password (name, email id, phone number). 
-Set up the profile page- name, email id, phone number
+2. **Login Page**
+   - Existing Users: Login with User ID & Password
+   - New Users: Create an Account (Name, Email ID, Phone Number)
+   - Forgot Password Option
 
-(1)Update profile page
-(2)Home page- name, email id, phone number, user id, contacted properties
-(3)Post your property
-(details in image below)
-Search by location (city, state, bengalruru only)
-(4)Buying/Rent
-Search by location (city, state, begalurur only)
-(5)Co living/PG/Hostel
-Search by location (city, state, behngalirur only)
+3. **Profile Setup Page**
+   - Name
+   - Email ID
+   - Phone Number
 
+---
 
+## **Main Features & Pages**
 
-selling
-buying
-co-living
-Put up house for lease (rent)
-Put up house for sale
-Put up commercial plot for lease
-Put up plot for sale
-Put up commercial room for lease
-Put up commercial room for sale
+### **1. Update Profile Page**
+- Users can edit Name, Email ID, and Phone Number
 
-Buy a house
-Rent a house
-Rent a commercial plot
-Rent a commercial room
-Buy a plot
+### **2. Home Page**
+- Displays user information:
+  - Name
+  - Email ID
+  - Phone Number
+  - User ID
+  - Contacted Properties
 
+### **3. Post Your Property**
+- Users can list properties with the following details:
+  - Address (Street, City, State)
+  - Area (sqft)
+  - Number of Rooms
+  - Floor
+  - Rent/Sale Price
+  - Deposit (if applicable)
+  - Contact Number
+  - Email
+  - Photos
+  - Date of Posting
 
+### **4. Search Properties**
+- **Search by Location** (City, State, *Bengaluru only*)
+  
+  #### **(a) Buying/Renting**
+  - Buy a House
+  - Rent a House
+  - Rent a Commercial Plot
+  - Rent a Commercial Room
+  - Buy a Plot
+  
+  #### **(b) Co-Living/PG/Hostel**
+  - Rent a PG
+  - Hostel for Kids (Under 18) *(Includes Guardian Details)*
 
-(Extra feature- Rent a house with multiple partners - timeline, pool-  total rent/No. of person)
-Rent a PG 
-Hostel for kids.under age of 18(include guardian details)
+### **5. Property Categories**
 
+#### **Selling**
+- Put up House for Lease (Rent)
+- Put up House for Sale
+- Put up Commercial Plot for Lease
+- Put up Plot for Sale
+- Put up Commercial Room for Lease
+- Put up Commercial Room for Sale
 
-House for rent
-User needs to enter- address (addy, city, state), area sqft, rooms, floor rent, deposit, contact no, email, photos, date of post
+#### **Buying/Renting**
+- Buy a House
+- Rent a House
+- Rent a Commercial Plot
+- Rent a Commercial Room
+- Buy a Plot
+
+---
+
+## **Extra Features**
+
+### **1. Rent a House with Multiple Partners**
+- Shared Rent Option *(Total Rent / No. of Persons)*
+- Timeline & Pooling System
+
+### **2. Auctions by Banks**
+- Properties available through bank auctions
+- Bidding System
+
+### **3. Hostel for Kids (Under 18)**
+- Includes Guardian Details
+
+---
+
+### **Future Enhancements**
+- AI-based property recommendations
+- Verified Listings
+- Secure Payment Gateway for Transactions
+
+---
+
+This structured blueprint ensures clarity and usability for seamless real estate transactions!
+
