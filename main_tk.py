@@ -138,7 +138,7 @@ def create_profile(the_username):                               ## prev user dat
     name, _, _, phone, role, profile_pic = user_data
    
     img = Image.open(profile_pic)
-    img = img.resize((70, 70), Image.Resampling.LANCZOS)
+    img = img.resize((70,70), Image.Resampling.LANCZOS)
     profile_img = ImageTk.PhotoImage(img)
     
     # If the profile button already exists, just update the image
@@ -156,7 +156,7 @@ def create_profile(the_username):                               ## prev user dat
 
         
     l1 = tb.Label(profile_frame, image=profile_img)
-    l1.grid(row=0,column=2,pady=20)
+    l1.grid(row=0,column=2,pady=20, columnspan=2)
     l1.dynamic = True  # Mark as dynamic
     
     l2 = tb.Label(profile_frame, text=f"{name}", font=("Arial Bold",12))
@@ -508,9 +508,9 @@ def upload_profile_image():
 # >>>>>>>>>>>>>>>> PROFILE PAGE UI <<<<<<<<<<<<<<<<
     
 tb.Button(profile_frame, text="Go Back", command=back_to_main_frame).grid(row=0,column=0,padx=5,pady=(20,0))
-tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=15)
+tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=15, padx=(10,400))
 
-tb.Button(profile_frame, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).grid(row=1,column=2)
+tb.Button(profile_frame, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).grid(row=1,column=2, columnspan=2)
 
 tb.Label(profile_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(20,0),pady=20)
 tb.Label(profile_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(20,0),pady=20)
