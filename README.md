@@ -22,7 +22,7 @@ use re_estate;
 source D:\\comp_project\\code\\DumpFileName.sql;
 
 > # PROMPTS
-**###🏡 Profile Page Contents**
+** ###🏡 Profile Page Contents**
 
 **1️⃣ Common Sections (For All Users)**
 - **Profile Picture** (Editable)  
