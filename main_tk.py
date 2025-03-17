@@ -123,7 +123,7 @@ def sign_in():
 
 pfp_user_email = None
 def create_profile(the_username):                               ## prev user data is shown ## To be used in forgot password button as well
-    global profile_img, profile_btn, l1, pfp_user_email  # Keep reference to avoid garbage collection
+    global profile_btn, l1, pfp_user_email,bigger_profile_img  # Keep reference to avoid garbage collection
     
     pfp_user_email = the_username
     
@@ -140,6 +140,8 @@ def create_profile(the_username):                               ## prev user dat
     img = Image.open(profile_pic)
     img = img.resize((70,70), Image.Resampling.LANCZOS)
     profile_img = ImageTk.PhotoImage(img)
+    img2=img.resize((130,130), Image.Resampling.LANCZOS)
+    bigger_profile_img = ImageTk.PhotoImage(img2)
     
     # If the profile button already exists, just update the image
     if "profile_btn" in globals():
@@ -155,21 +157,25 @@ def create_profile(the_username):                               ## prev user dat
     profile_btn.grid(row=0,column=0,sticky=EW, pady=10,)
 
         
-    l1 = tb.Label(profile_frame, image=profile_img)
+    l1 = tb.Label(profile_frame, image=bigger_profile_img)
     l1.grid(row=0,column=2,pady=20, columnspan=2)
     l1.dynamic = True  # Mark as dynamic
     
     l2 = tb.Label(profile_frame, text=f"{name}", font=("Arial Bold",12))
-    l2.grid(row=2,column=3,pady=20)
+    l2.grid(row=2,column=3,padx=100,pady=20,sticky=E)
     l2.dynamic = True  # Mark as dynamic
     
     l3 = tb.Label(profile_frame, text=f"{the_username}", font=("Arial Bold",12))
-    l3.grid(row=3,column=3,pady=20)
+    l3.grid(row=3,column=3,padx=100,pady=20,sticky=E)
     l3.dynamic = True  # Mark as dynamic
     
-    l4 = tb.Label(profile_frame, text=f"{role}", font=("Arial Bold",12))
-    l4.grid(row=5,column=3,pady=20)
+    l4 = tb.Label(profile_frame, text=f"{phone}", font=("Arial Bold",12))
+    l4.grid(row=4,column=3,padx=100,pady=20,sticky=E)
     l4.dynamic = True  # Mark as dynamic
+    
+    l5 = tb.Label(profile_frame, text=f"{role}", font=("Arial Bold",12))
+    l5.grid(row=5,column=3,padx=100,pady=20,sticky=E)
+    l5.dynamic = True  # Mark as dynamic
 
 # Functions under the SIGN UP Button
 def show_signup_window():
@@ -510,15 +516,19 @@ def upload_profile_image():
 tb.Button(profile_frame, text="Go Back", command=back_to_main_frame).grid(row=0,column=0,padx=5,pady=(20,0))
 tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=15, padx=(10,400))
 
-tb.Button(profile_frame, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).grid(row=1,column=2, columnspan=2)
+#tb.Button(profile_frame, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).grid(row=1,column=2, columnspan=2)
 
-tb.Label(profile_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(20,0),pady=20)
-tb.Label(profile_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(20,0),pady=20)
-tb.Label(profile_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(20,0),pady=20)
-tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(20,0),pady=20)
+tb.Label(profile_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(20,0),pady=20,sticky=W)
+tb.Label(profile_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(20,0),pady=20,sticky=W)
+tb.Label(profile_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(20,0),pady=20,sticky=W)
+tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(20,0),pady=20,sticky=W)
 
-logout_button = tb.Button(profile_frame, text="Logout", bootstyle=(SECONDARY,OUTLINE), command=logout)
-logout_button.grid(row=13,column=2,sticky=EW,pady=10)
+logout_button = tb.Button(profile_frame, text="Logout", bootstyle="SECONDARY",command=logout)
+logout_button.grid(row=2,column=0,sticky=EW,pady=10)
+
+ #button in side bar of profile frame:
+edit_btn=tb.Button(profile_frame,text="Edit", bootstyle="warning")
+edit_btn.grid (row=1,column=0,sticky=EW,pady=10) 
 
 
 
