@@ -122,7 +122,7 @@ def sign_in():
 
 pfp_user_email = None
 def create_profile(the_username):                               ## prev user data is shown ## To be used in forgot password button as well
-    global profile_btn, l1, pfp_user_email,bigger_profile_img  # Keep reference to avoid garbage collection
+    global profile_btn, l1, pfp_user_email, bigger_profile_img  # Keep reference to avoid garbage collection
     
     pfp_user_email = the_username
     
@@ -488,8 +488,9 @@ def edit_profile():
     user_data = cursor.fetchone()
     
     name, _, _, phone, role, profile_pic = user_data
+    # Load and store image reference
     img = Image.open(profile_pic).resize((130,130))
-    img = ImageTk.PhotoImage(img)
+    profile_icon_lb_img = ImageTk.PhotoImage(img)  # Store in a variable
     
     def delete_account():
         confirm = messagebox.askyesno("Delete Account", "Are you sure you want to DELETE your account? Your data will not be recovered.")
@@ -498,8 +499,8 @@ def edit_profile():
                 query = "DELETE FROM users WHERE username = '{}'".format(pfp_user_email)
                 cursor.execute(query)
                 mycon.commit()
-                messagebox.showinfo("Your Account Has Been Deleted")
-                root.destroy()
+                messagebox.showinfo("Success", "Your Account Has Been Deleted")
+                logout()
             
             
     def edit_profile_submit():
@@ -540,7 +541,12 @@ def edit_profile():
             profile_btn.config(image=profile_img)
             profile_btn.image = profile_img  # Keep reference
                 
-            l1.config(image=bigger_profile_img)
+                # **Update l1 if it exists**
+            if l1 is not None:
+                l1.config(image=bigger_profile_img)
+                l1.image = bigger_profile_img  # Store reference to avoid garbage collection
+            
+            profile_icon_lb.config(image=bigger_profile_img)
                 
             print(file_path)
             print(profile_img_path)
@@ -551,38 +557,42 @@ def edit_profile():
 
             print(f"Profile image updated in database: {profile_img_path}")
     
-    profile_icon_lb=tb.Label(editprof_window,image=img)
+
+    # Assign image to label and keep a reference
+    profile_icon_lb = tb.Label(editprof_window, image=profile_icon_lb_img)
+    profile_icon_lb.image = profile_icon_lb_img  # Store reference to prevent garbage collection
     profile_icon_lb.pack(pady=(18,6))
+    
     
     tb.Button(editprof_window, text="Change your profile photo", bootstyle=(WARNING,LINK), command=upload_profile_image).pack(pady=(0,18)) 
       
     info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=SECONDARY)
     info_frame.pack(padx=10,pady=10,fill=X)
       
-    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=0,column=0,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=0,column=0,padx=(14,0),pady=10)
     full_name_entry = tb.Entry(info_frame, width=30)
     full_name_entry.grid(row=0, column=1, padx=5, pady=5, sticky=E)
     full_name_entry.insert(0, f"{name}")
     
-    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=1,column=0,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=1,column=0,padx=(14,0),pady=10)
     emailadd_entry = tb.Entry(info_frame, width=30)
     emailadd_entry.grid(row=1, column=1, padx=5, pady=5, sticky=E)
     emailadd_entry.insert(0, f"{pfp_user_email}")
 
-    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=2,column=0,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=2,column=0,padx=(17,0),pady=10)
     phone_entry = tb.Entry(info_frame, width=30)
     phone_entry.grid(row=2, column=1, padx=14, pady=14, sticky=E)
     phone_entry.insert(0, f"{phone}")
 
-    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=3,column=0,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=3,column=0,padx=(15,0),pady=10)
     role_entry=tb.Entry(info_frame, width = 30)
-    role_entry.grid(row=3, column=1, padx=14, pady=14, sticky=E)
+    role_entry.grid(row=3, column=1, padx=10, pady=10, sticky=E)
     role_entry.insert(0, f"{role}")
     role_entry.configure(state=DISABLED)
             
-    tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK)).pack(pady=10,padx=10)    
+    tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK)).pack(pady=5,padx=10)    
     
-    tb.Button(editprof_window, text="Delete Your Account", bootstyle = (DANGER, LINK), command=delete_account).pack(pady=10, padx=10)
+    tb.Button(editprof_window, text="Delete Your Account", bootstyle = (DANGER, LINK), command=delete_account).pack(pady=5, padx=10)
     
     tb.Button(editprof_window, text="SAVE CHANGES", bootstyle = SUCCESS, command=edit_profile_submit).pack(pady=20)
     
