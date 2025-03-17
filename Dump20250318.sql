@@ -66,7 +66,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('Peezo','cat@gmail.com','cat',NULL,'Owner','images/superhero.png'),('Deekshitha','Deekshi@gmail.com','Deekshitha22',NULL,'Owner','images\\deekshitha_new.png'),('Dio','dio@gmail.com','dio',NULL,'Tenant','images/dio.jpg'),('Irene','Irene@hotmail.com','Irenepassword22',NULL,'Tenant','images/irene.png'),('Manasvi','manasvi@gmail.com','man',NULL,'Tenant','images/manasvi.png'),('Nami','nami@op.in','op',NULL,'Tenant','images/superhero.png'),('Paridhi','pari@org.in','pari',NULL,'Agent','images/superhero.png'),('Poonam','poonam@gmail.com','e',NULL,'Agent','images/superhero.png');
+INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','dd',NULL,'Owner','images\\deekshitha_new.png'),('Dio','dio@gmail.com','dio',NULL,'Tenant','images\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/irene.png'),('Manasvi','manasvi@gmail.com','man',NULL,'Tenant','images/manasvi.png'),('Paridhi','pari@org.in','pari',NULL,'Agent','images/superhero.png');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -79,4 +79,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-17 22:59:36
+-- Dump completed on 2025-03-18  0:46:47
