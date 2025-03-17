@@ -478,7 +478,7 @@ def logout():
     profile_frame.pack_forget()
     login_frame.pack(expand=True, fill='both')
     forgot.configure(state=DISABLED)
-
+'''
 def edit_profile():
     editprof_window=tk.Toplevel(profile_frame)
     editprof_window.title("Edit your profile")
@@ -549,7 +549,7 @@ def edit_profile():
             
     save_changes_btn = tb.Button(profile_frame, text="SAVE CHANGES", command=edit_profile_submit, bootstyle="success")
     save_changes_btn.pack(pady=20)
-    
+'''   
     
 def upload_profile_image():
     global profile_img, profile_img_path  # Keep reference to avoid garbage collection
@@ -588,7 +588,7 @@ pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
   
 tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=(0,20), fill=BOTH, padx=(10,0))
-tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING, command=edit_profile()).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
+tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
 tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 
 tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=50, padx=(10,400))
