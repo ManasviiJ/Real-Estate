@@ -491,36 +491,6 @@ def edit_profile():
     img = Image.open(profile_pic).resize((130,130))
     img = ImageTk.PhotoImage(img)
     
-    profile_icon_lb=tb.Label(editprof_window,image=img)
-    profile_icon_lb.pack(pady=(18,6))
-    
-    tb.Button(editprof_window, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).pack(pady=(0,18))
-    
-    info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=(INFO))
-    info_frame.pack(padx=10,pady=10,fill="X")
-      
-    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(14,0),pady=14)
-    full_name_entry = tb.Entry(info_frame, width=30)
-    full_name_entry.grid(row=0, column=1, padx=5, pady=5)
-    
-    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(14,0),pady=14)
-    emailadd_entry = tb.Entry(info_frame, width=30)
-    emailadd_entry.grid(row=1, column=1, padx=5, pady=5)
-
-    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(14,0),pady=14)
-    phone_entry = tb.Entry(info_frame, width=30)
-    phone_entry.grid(row=2, column=1, padx=14, pady=14)
-
-    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(14,0),pady=14)
-    role_entry=tb.Entry(info_frame, width=30)
-    role_entry.grid(row=3, column=1, padx=14, pady=14)
- 
-    tb.Button(editprof_window, text="Reset Password",padx=10, pady=15).pack(pady=10)    
-    
-    tb.Button(editprof_window, text="Delete Your Account", command=delete_account, padx=10, pady=15).pack(pady=10)
-    
-    tb.Button(profile_frame, text="SAVE CHANGES", command=edit_profile_submit, bootstyle="success").pack(pady=20)
-        
     def delete_account():
         confirm = messagebox.askyesno("Delete Account", "Are you sure you want to DELETE your account? Your data will not be recovered.")
 
@@ -549,37 +519,67 @@ def edit_profile():
         else:
             messagebox.showwarning("Warning", "Please fill all fields!")
             
-def upload_profile_image():
-    global profile_img, profile_img_path  # Keep reference to avoid garbage collection
+    def upload_profile_image():
+        global profile_img, profile_img_path, l1  # Keep reference to avoid garbage collection
 
-    # Open file dialog to select image
-    file_path = filedialog.askopenfilename(
-        title="Select Profile Picture",
-        filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")]
-    )
-        
-    if file_path:  # If a file was selected
-        profile_img_path = os.path.relpath(file_path)
-        profile_img_path = os.path.normpath(profile_img_path)
-        profile_img_path = profile_img_path.replace("\\", "\\\\")  # Double backslashes for MySQL
-        img = Image.open(profile_img_path).resize((70, 70), Image.Resampling.LANCZOS)
-        profile_img = ImageTk.PhotoImage(img)
-        bigger_profile_img = ImageTk.PhotoImage(Image.open(profile_img_path).resize((130,130), Image.Resampling.LANCZOS))
-
-        # Update the displayed image in GUI
-        profile_btn.config(image=profile_img)
-        profile_btn.image = profile_img  # Keep reference
+        # Open file dialog to select image
+        file_path = filedialog.askopenfilename(
+            title="Select Profile Picture",
+            filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")]
+        )
             
-        l1.config(image=bigger_profile_img)
+        if file_path:  # If a file was selected
+            profile_img_path = os.path.relpath(file_path)
+            profile_img_path = os.path.normpath(profile_img_path)
+            profile_img_path = profile_img_path.replace("\\", "\\\\")  # Double backslashes for MySQL
+            img = Image.open(profile_img_path).resize((70, 70), Image.Resampling.LANCZOS)
+            profile_img = ImageTk.PhotoImage(img)
+            bigger_profile_img = ImageTk.PhotoImage(Image.open(profile_img_path).resize((130,130), Image.Resampling.LANCZOS))
+
+            # Update the displayed image in GUI
+            profile_btn.config(image=profile_img)
+            profile_btn.image = profile_img  # Keep reference
+                
+            l1.config(image=bigger_profile_img)
+                
+            print(file_path)
+            print(profile_img_path)
+
+            # Update database with new profile image path
+            cursor.execute("UPDATE users SET profile_pic = '{}' WHERE username = '{}'".format(profile_img_path, pfp_user_email))
+            mycon.commit()
+
+            print(f"Profile image updated in database: {profile_img_path}")
+    
+    profile_icon_lb=tb.Label(editprof_window,image=img)
+    profile_icon_lb.pack(pady=(18,6))
+    
+    tb.Button(editprof_window, text="Change your profile photo", bootstyle=(WARNING,LINK), command=upload_profile_image).pack(pady=(0,18)) 
+      
+    info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=SECONDARY)
+    info_frame.pack(padx=10,pady=10,fill=X)
+      
+    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(14,0),pady=14)
+    full_name_entry = tb.Entry(info_frame, width=30)
+    full_name_entry.grid(row=0, column=1, padx=5, pady=5)
+    
+    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(14,0),pady=14)
+    emailadd_entry = tb.Entry(info_frame, width=30)
+    emailadd_entry.grid(row=1, column=1, padx=5, pady=5)
+
+    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(14,0),pady=14)
+    phone_entry = tb.Entry(info_frame, width=30)
+    phone_entry.grid(row=2, column=1, padx=14, pady=14)
+
+    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(14,0),pady=14)
+    role_entry=tb.Entry(info_frame, width=30)
+    role_entry.grid(row=3, column=1, padx=14, pady=14)
             
-        print(file_path)
-        print(profile_img_path)
-
-        # Update database with new profile image path
-        cursor.execute("UPDATE users SET profile_pic = '{}' WHERE username = '{}'".format(profile_img_path, pfp_user_email))
-        mycon.commit()
-
-        print(f"Profile image updated in database: {profile_img_path}")
+    tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK)).pack(pady=10,padx=10)    
+    
+    tb.Button(editprof_window, text="Delete Your Account", bootstyle = (DANGER, LINK), command=delete_account).pack(pady=10, padx=10)
+    
+    tb.Button(editprof_window, text="SAVE CHANGES", bootstyle = SUCCESS, command=edit_profile_submit).pack(pady=20)
     
 # >>>>>>>>>>>>>>>> PROFILE PAGE UI <<<<<<<<<<<<<<<<
 
