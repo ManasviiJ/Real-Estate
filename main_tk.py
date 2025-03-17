@@ -516,9 +516,9 @@ def upload_profile_image():
 pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
   
-tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=20, fill=BOTH)
-tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING).pack(pady=(0,20), fill=BOTH) 
-tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH)
+tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=(0,20), fill=BOTH, padx=(10,0))
+tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
+tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 
 tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=50, padx=(10,400))
 
