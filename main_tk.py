@@ -559,21 +559,26 @@ def edit_profile():
     info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=SECONDARY)
     info_frame.pack(padx=10,pady=10,fill=X)
       
-    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=0,column=0,padx=(14,0),pady=14)
     full_name_entry = tb.Entry(info_frame, width=30)
-    full_name_entry.grid(row=0, column=1, padx=5, pady=5)
+    full_name_entry.grid(row=0, column=1, padx=5, pady=5, sticky=E)
+    full_name_entry.insert(0, f"{name}")
     
-    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=1,column=0,padx=(14,0),pady=14)
     emailadd_entry = tb.Entry(info_frame, width=30)
-    emailadd_entry.grid(row=1, column=1, padx=5, pady=5)
+    emailadd_entry.grid(row=1, column=1, padx=5, pady=5, sticky=E)
+    emailadd_entry.insert(0, f"{pfp_user_email}")
 
-    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(14,0),pady=14)
+    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=2,column=0,padx=(14,0),pady=14)
     phone_entry = tb.Entry(info_frame, width=30)
-    phone_entry.grid(row=2, column=1, padx=14, pady=14)
+    phone_entry.grid(row=2, column=1, padx=14, pady=14, sticky=E)
+    phone_entry.insert(0, f"{phone}")
 
-    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(14,0),pady=14)
-    role_entry=tb.Entry(info_frame, width=30)
-    role_entry.grid(row=3, column=1, padx=14, pady=14)
+    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=3,column=0,padx=(14,0),pady=14)
+    role_entry=tb.Entry(info_frame, width = 30)
+    role_entry.grid(row=3, column=1, padx=14, pady=14, sticky=E)
+    role_entry.insert(0, f"{role}")
+    role_entry.configure(state=DISABLED)
             
     tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK)).pack(pady=10,padx=10)    
     
