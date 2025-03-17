@@ -241,55 +241,50 @@ def show_signup_window():
 
 
 # Functions under the FORGOT PASSWORD Button
-def check_reg_email(): 
+def reset_password(uname):  # Move reset_password OUTSIDE check_reg_email
+    rpass_window = tk.Toplevel(login_frame)
+    rpass_window.title("Reset Password")
+    rpass_window.geometry("400x350")
     
+    ttk.Label(rpass_window, text="Enter new password").pack(pady=10)
+    new_pass_entry = ttk.Entry(rpass_window)
+    new_pass_entry.pack(pady=5)
+    
+    ttk.Label(rpass_window, text="Confirm Password").pack(pady=10)
+    confirm_pass_entry = ttk.Entry(rpass_window)
+    confirm_pass_entry.pack(pady=5)
+    
+    def rpass():
+        new_pass = new_pass_entry.get()
+        confirm_pass = confirm_pass_entry.get()
+        
+        if not new_pass or not confirm_pass:
+            messagebox.showerror("Error", "All Fields Are Mandatory")
+        elif new_pass != confirm_pass:
+            messagebox.showerror("Error", "Passwords do not match")
+        else:
+            messagebox.showinfo("Success", "Password has been Reset!")
+            cursor.execute("UPDATE users SET password = '{}' WHERE username = '{}'".format(new_pass, uname))
+            mycon.commit()
+            create_profile(uname)
+            login_success()
+            rpass_window.destory()
+    
+    ttk.Button(rpass_window, text="Confirm", command=rpass).pack(pady=10)
+
+def check_reg_email():  
     cursor.execute("select * from users")
     users_data = cursor.fetchall()
     
-    current_users = {}
-    for name,username,password,phone,role,profile_pic in users_data:
-        current_users.update({username:[name, username, password, phone, role, profile_pic]})
-       
+    current_users = {username: [name, username, password, phone, role, profile_pic] for name, username, password, phone, role, profile_pic in users_data}
+    
     if username_entry_si.get() in current_users:
         messagebox.showinfo("Success", "We have sent a verification link to your email address. Please click 'ok' once you've verified your email address.")
-        reset_password()
+        reset_password(username_entry_si.get())  # Now reset_password is properly defined
     else:
-        messagebox.showerror("Error","This email is not registered with us.")
-        
-    def reset_password():
-        rpass_window = tk.Toplevel(login_frame)
-        rpass_window.title("Reset Password")
-        rpass_window.geometry("400x350")
-        
-        ttk.Label(rpass_window,text="Enter new password").pack(pady=10)
-        new_pass_entry = ttk.Entry(rpass_window)
-        new_pass_entry.pack(pady=5)
-        
-        ttk.Label(rpass_window,text="Confirm Password").pack(pady=10)
-        confirm_pass_entry = ttk.Entry(rpass_window)
-        confirm_pass_entry.pack(pady=5)
-        
-        def rpass():
-            new_pass = new_pass_entry.get()
-            confirm_pass = confirm_pass_entry.get()
-            
-            if not new_pass or not confirm_pass:
-                messagebox.showerror("Error","All Fields Are Mandatory")
-                
-            elif new_pass!=confirm_pass:
-                messagebox.showerror("Error","Passwords do not match")
-                
-            else:
-                messagebox.showinfo("Success","Password has been Reset!")
-                
-                cursor.execute("update users set password = '{}' where username = '{}'".format(new_pass, username_entry_si.get()))
-                mycon.commit()
-                
-                create_profile(username_entry_si.get())
-                login_success()
-        
-        ttk.Button(rpass_window,text="Confirm",command=rpass).pack()
-        
+        messagebox.showerror("Error", "This email is not registered with us.")
+
+       
 # Function under the SHOW PASSWORD Button   
 def show_password():
     if show_passVar.get():
@@ -492,34 +487,6 @@ def edit_profile():
     img = Image.open(profile_pic).resize((130,130))
     profile_icon_lb_img = ImageTk.PhotoImage(img)  # Store in a variable
     
-    def delete_account():
-        confirm = messagebox.askyesno("Delete Account", "Are you sure you want to DELETE your account? Your data will not be recovered.")
-
-        if confirm:
-                query = "DELETE FROM users WHERE username = '{}'".format(pfp_user_email)
-                cursor.execute(query)
-                mycon.commit()
-                messagebox.showinfo("Success", "Your Account Has Been Deleted")
-                logout()
-            
-            
-    def edit_profile_submit():
-        new_name = full_name_entry.get()
-        new_phone = phone_entry.get()
-
-        if new_name or new_phone:
-            query = "update users name = %s, phone = %s WHERE username = %s"
-            cursor.execute(query, (new_name, new_phone, pfp_user_email))
-            mycon.commit()
-            messagebox.showinfo("Success", "Profile updated successfully!")
-
-        if not new_name == name:
-            query = "UPDATE users SET name = '{}' WHERE username = '{}'".format(new_name, pfp_user_email)
-            cursor.execute(query)
-            
-        else:
-            messagebox.showwarning("Warning", "Please fill all fields!")
-            
     def upload_profile_image():
         global profile_img, profile_img_path, l1  # Keep reference to avoid garbage collection
 
@@ -555,7 +522,74 @@ def edit_profile():
             cursor.execute("UPDATE users SET profile_pic = '{}' WHERE username = '{}'".format(profile_img_path, pfp_user_email))
             mycon.commit()
 
-            print(f"Profile image updated in database: {profile_img_path}")
+            print(f"Profile image updated in database: {profile_img_path}")    
+
+    def reset_pass(uname):
+        # Move reset_password OUTSIDE check_reg_email
+        rpass_window = tk.Toplevel(login_frame)
+        rpass_window.title("Reset Password")
+        rpass_window.geometry("400x350")
+        
+        ttk.Label(rpass_window, text="Enter new password").pack(pady=10)
+        new_pass_entry = ttk.Entry(rpass_window)
+        new_pass_entry.pack(pady=5)
+        
+        ttk.Label(rpass_window, text="Confirm Password").pack(pady=10)
+        confirm_pass_entry = ttk.Entry(rpass_window)
+        confirm_pass_entry.pack(pady=5)
+        
+        def rpassdd():
+            new_pass = new_pass_entry.get()
+            confirm_pass = confirm_pass_entry.get()
+            
+            if not new_pass or not confirm_pass:
+                messagebox.showerror("Error", "All Fields Are Mandatory")
+            elif new_pass != confirm_pass:
+                messagebox.showerror("Error", "Passwords do not match")
+            else:
+                messagebox.showinfo("Success", "Password has been Reset!")
+                cursor.execute("UPDATE users SET password = '{}' WHERE username = '{}'".format(new_pass, uname))
+                mycon.commit()
+                rpass_window.destroy()
+    
+        ttk.Button(rpass_window, text="Confirm", command=lambda: rpassdd()).pack(pady=10)
+
+    def delete_account():
+        confirm = messagebox.askyesno("Delete Account", "Are you sure you want to DELETE your account? Your data will not be recovered.")
+
+        if confirm:
+                query = "DELETE FROM users WHERE username = '{}'".format(pfp_user_email)
+                cursor.execute(query)
+                mycon.commit()
+                messagebox.showinfo("Success", "Your Account Has Been Deleted")
+                logout()
+            
+            
+    def edit_profile_submit():
+        new_name = full_name_entry.get()
+        new_phone = phone_entry.get()
+        new_uname = emailadd_entry.get()
+
+        if not new_phone == phone:
+            query = "UPDATE users SET phone = {} WHERE username = '{}'"
+            cursor.execute(query.format(new_phone, pfp_user_email))
+            mycon.commit()
+            messagebox.showinfo("Success", "Profile updated successfully!")
+
+        if not new_name == name:
+            query = "UPDATE users SET name = '{}' WHERE username = '{}'".format(new_name, pfp_user_email)
+            cursor.execute(query)
+            mycon.commit()
+            
+        if not new_uname == pfp_user_email:
+            query = "UPDATE users SET username = '{}' WHERE username = '{}'".format(new_uname, pfp_user_email)
+            cursor.execute(query)
+            mycon.commit()
+            
+        if not new_name or not new_phone or not new_uname:
+            messagebox.showerror("Error", "All Fields are required")
+            
+
     
 
     # Assign image to label and keep a reference
@@ -590,7 +624,7 @@ def edit_profile():
     role_entry.insert(0, f"{role}")
     role_entry.configure(state=DISABLED)
             
-    tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK)).pack(pady=5,padx=10)    
+    tb.Button(editprof_window, text="Reset Password", bootstyle = (WARNING, LINK), command=lambda: reset_pass(pfp_user_email)).pack(pady=5,padx=10)    
     
     tb.Button(editprof_window, text="Delete Your Account", bootstyle = (DANGER, LINK), command=delete_account).pack(pady=5, padx=10)
     
