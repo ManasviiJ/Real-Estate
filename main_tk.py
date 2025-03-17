@@ -138,9 +138,9 @@ def create_profile(the_username):                               ## prev user dat
     name, _, _, phone, role, profile_pic = user_data
    
     img = Image.open(profile_pic)
-    img = img.resize((70,70), Image.Resampling.LANCZOS)
+    img = img.resize((70,70))
     profile_img = ImageTk.PhotoImage(img)
-    img2=img.resize((130,130), Image.Resampling.LANCZOS)
+    img2=Image.open(profile_pic).resize((130,130))
     bigger_profile_img = ImageTk.PhotoImage(img2)
     
     # If the profile button already exists, just update the image
@@ -512,9 +512,15 @@ def upload_profile_image():
         print(f"Profile image updated in database: {profile_img_path}")
     
 # >>>>>>>>>>>>>>>> PROFILE PAGE UI <<<<<<<<<<<<<<<<
-    
-tb.Button(profile_frame, text="Go Back", command=back_to_main_frame).grid(row=0,column=0,padx=5,pady=(20,0))
-tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=15, padx=(10,400))
+
+pfp_btn_frame = tb.Frame(profile_frame)
+pfp_btn_frame.grid(row=0, column=0, rowspan=3)
+  
+tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=20, fill=BOTH)
+tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING).pack(pady=(0,20), fill=BOTH) 
+tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH)
+
+tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=50, padx=(10,400))
 
 #tb.Button(profile_frame, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).grid(row=1,column=2, columnspan=2)
 
@@ -523,12 +529,6 @@ tb.Label(profile_frame, text="Email Address:", font=("Arial bold",12)).grid(row=
 tb.Label(profile_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(20,0),pady=20,sticky=W)
 tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(20,0),pady=20,sticky=W)
 
-logout_button = tb.Button(profile_frame, text="Logout", bootstyle="SECONDARY",command=logout)
-logout_button.grid(row=2,column=0,sticky=EW,pady=10)
-
- #button in side bar of profile frame:
-edit_btn=tb.Button(profile_frame,text="Edit", bootstyle="warning")
-edit_btn.grid (row=1,column=0,sticky=EW,pady=10) 
 
 
 
