@@ -38,7 +38,6 @@ def login_success():
     password_entry_si.delete(0,END)
     login_frame.pack_forget()
     main_frame.pack(expand=True, fill='both')
-    
 
 
 def role_select(uname):
@@ -479,6 +478,78 @@ def logout():
     profile_frame.pack_forget()
     login_frame.pack(expand=True, fill='both')
     forgot.configure(state=DISABLED)
+
+def edit_profile():
+    editprof_window=tk.Toplevel(profile_frame)
+    editprof_window.title("Edit your profile")
+    editprof_window.geometry("600x600")
+    
+    cursor.execute("select * from users where username='{}'".format(pfp_user_email))
+    user_data = cursor.fetchone()
+    
+    name, _, _, phone, role, profile_pic = user_data
+    img = Image.open(profile_pic).resize((130,130))
+    img = ImageTk.PhotoImage(img)
+    
+    profile_icon_lb=tb.Label(editprof_window,image=img)
+    profile_icon_lb.pack(pady=(18,6))
+    
+    tb.Button(editprof_window, text="Change your profile photo", bootstyle=(SECONDARY,LINK), command=upload_profile_image).pack(pady=(0,18))
+    
+    info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=(INFO))
+    info_frame.pack(padx=10,pady=10,fill="X")
+      
+    tb.Label(info_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,column=2,padx=(14,0),pady=14)
+    full_name_entry = tb.Entry(info_frame, width=30)
+    full_name_entry.grid(row=0, column=1, padx=5, pady=5)
+    
+    tb.Label(info_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(14,0),pady=14)
+    emailadd_entry = tb.Entry(info_frame, width=30)
+    emailadd_entry.grid(row=1, column=1, padx=5, pady=5)
+
+    tb.Label(info_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(14,0),pady=14)
+    phone_entry = tb.Entry(info_frame, width=30)
+    phone_entry.grid(row=2, column=1, padx=14, pady=14)
+
+    tb.Label(info_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(14,0),pady=14)
+    role_entry=tb.Entry(info_frame, width=30)
+    role_entry.grid(row=3, column=1, padx=14, pady=14)
+ 
+    tb.Button(editprof_window, text="Reset Password",padx=10, pady=15).pack(pady=10)    
+    
+    tb.Button(editprof_window, text="Delete Your Account", command=delete_account, padx=10, pady=15).pack(pady=10)
+        
+    def delete_account():
+        confirm = messagebox.askyesno("Delete Account", "Are you sure you want to DELETE your account? Your data will not be recovered.")
+
+        if confirm:
+                query = "DELETE FROM users WHERE username = '{}'".format(pfp_user_email)
+                cursor.execute(query)
+                mycon.commit()
+                messagebox.showinfo("Your Account Has Been Deleted")
+                root.destroy()
+            
+            
+    def edit_profile_submit():
+        new_name = full_name_entry.get()
+        new_phone = phone_entry.get()
+
+        if new_name or new_phone:
+            query = "update users name = %s, phone = %s WHERE username = %s"
+            cursor.execute(query, (new_name, new_phone, pfp_user_email))
+            mycon.commit()
+            messagebox.showinfo("Success", "Profile updated successfully!")
+
+        if not new_name == name:
+            query = "UPDATE users SET name = '{}' WHERE username = '{}'".format(new_name, pfp_user_email)
+            cursor.execute(query)
+            
+        else:
+            messagebox.showwarning("Warning", "Please fill all fields!")
+            
+    save_changes_btn = tb.Button(profile_frame, text="SAVE CHANGES", command=edit_profile_submit, bootstyle="success")
+    save_changes_btn.pack(pady=20)
+    
     
 def upload_profile_image():
     global profile_img, profile_img_path  # Keep reference to avoid garbage collection
@@ -517,7 +588,7 @@ pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
   
 tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=(0,20), fill=BOTH, padx=(10,0))
-tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
+tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING, command=edit_profile()).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
 tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 
 tb.Separator(profile_frame, orient=VERTICAL).grid(row=0,column=1,sticky=NS,rowspan=50, padx=(10,400))
