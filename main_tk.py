@@ -502,16 +502,11 @@ def edit_profile():
             profile_img_path = profile_img_path.replace("\\", "\\\\")  # Double backslashes for MySQL
             img = Image.open(profile_img_path).resize((70, 70), Image.Resampling.LANCZOS)
             profile_img = ImageTk.PhotoImage(img)
-            bigger_profile_img = ImageTk.PhotoImage(Image.open(profile_img_path).resize((130,130), Image.Resampling.LANCZOS))
+
 
             # Update the displayed image in GUI
             profile_btn.config(image=profile_img)
             profile_btn.image = profile_img  # Keep reference
-                
-                # **Update l1 if it exists**
-            if l1 is not None:
-                l1.config(image=bigger_profile_img)
-                l1.image = bigger_profile_img  # Store reference to avoid garbage collection
             
             profile_icon_lb.config(image=bigger_profile_img)
                 
@@ -566,29 +561,48 @@ def edit_profile():
             
             
     def edit_profile_submit():
-        new_name = full_name_entry.get()
-        new_phone = phone_entry.get()
-        new_uname = emailadd_entry.get()
+        global pfp_user_email, l1
+        
+        new_name=full_name_entry.get()
+        new_phone=phone_entry.get()
+        new_uname=emailadd_entry.get()
 
-        if not new_phone == phone:
-            query = "UPDATE users SET phone = {} WHERE username = '{}'"
-            cursor.execute(query.format(new_phone, pfp_user_email))
-            mycon.commit()
-            messagebox.showinfo("Success", "Profile updated successfully!")
-
-        if not new_name == name:
-            query = "UPDATE users SET name = '{}' WHERE username = '{}'".format(new_name, pfp_user_email)
-            cursor.execute(query)
-            mycon.commit()
-            
-        if not new_uname == pfp_user_email:
-            query = "UPDATE users SET username = '{}' WHERE username = '{}'".format(new_uname, pfp_user_email)
-            cursor.execute(query)
-            mycon.commit()
-            
         if not new_name or not new_phone or not new_uname:
-            messagebox.showerror("Error", "All Fields are required")
-            
+            messagebox.showerror("Error","All fields are required")
+            return
+
+        if new_phone.isdigit() and len(new_phone) <= 10:
+            cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
+            mycon.commit()
+        else:
+            print("Invalid phone number!")
+    
+        if new_name!=name:
+            cursor.execute("UPDATE users SET name = %s WHERE username = %s", (new_name, pfp_user_email))
+            mycon.commit()
+
+
+        if new_phone!=phone:
+            cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
+            mycon.commit()
+
+        if new_uname != pfp_user_email:
+            if not is_valid_email(new_uname):
+                messagebox.showerror("Error", "Invalid email address")
+            else:
+                cursor.execute("UPDATE users SET username = %s WHERE username = %s", (new_uname, pfp_user_email))
+                mycon.commit()
+                pfp_user_email = new_uname  # Update the variable after committing
+
+        bigger_profile_img = ImageTk.PhotoImage(Image.open(profile_img_path).resize((130,130), Image.Resampling.LANCZOS))
+
+        if l1 is not None:
+            l1.config(image=bigger_profile_img)
+            l1.image = bigger_profile_img  # Store reference to avoid garbage collection    
+
+        messagebox.showinfo("Success","Profile updated successfully!")
+        create_profile(pfp_user_email)
+        editprof_window.destroy()
 
     
 
