@@ -457,8 +457,12 @@ if pfp_user_email is not None:
     cursor.execute("select * from users where username = '{}'".format(pfp_user_email))
     data = cursor.fetchall
     if data[4] == "Owner":
-        tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=WARNING, command=lambda: new_frame_open(post_prop_frame)).pack(pady=10)
+        tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=SUCCESS, command=lambda: new_frame_open(post_prop_frame)).pack(pady=10)
 
+style = tb.Style()
+style.configure("success.TButton", anchor="center", justify="center")
+
+tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=SUCCESS, command=lambda: new_frame_open(post_prop_frame)).grid(row=1,column=0,pady=10)
 
 
 
@@ -658,6 +662,83 @@ tb.Label(profile_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column
 tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(20,0),pady=20,sticky=W)
 
 
+
+
+
+
+# >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
+tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Helvetica", 24)).grid(row=0, column=2, columnspan=3, padx=150, pady=10, sticky=W)
+
+sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1250, height=550)
+sf2.grid(row=1, column=2, columnspan=3, padx=10, pady=10, sticky=W)
+
+sell_lease = tk.StringVar()
+
+tb.Label(sf2, text="SELL OR LEASE:", font=("Helvetica", 12)).grid(row=0, column=0, pady=10, sticky=tk.W)
+
+sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL")
+sell.grid(row=0, column=1)
+
+lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE")
+lease.grid(row=0, column=2)
+
+tb.Label(sf2, text="PROPERTY TYPE:", font=("Helvetica", 12)).grid(row=1, column=0, pady=10, sticky=W)
+
+prop_type_list = ["Residential Property", "Commercial/Industrial Property", "Land/Plot"]
+prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list)
+prop_type.grid(row=1, column=1, columnspan=2)
+
+Prop_dets_frame = tb.LabelFrame(sf2,text="PROPERTY DETAILS")
+Prop_dets_frame.grid(row=2,column=0,columnspan=3,padx=10,pady=10)
+
+# Title
+tb.Label(Prop_dets_frame, text="Title:", font=("Helvetica", 12)).grid(column=0, row=2, sticky=tk.W)
+title = tb.Entry(Prop_dets_frame)
+title.grid(row=0, column=1, columnspan=2, sticky=tk.E)
+
+# Location
+tb.Label(Prop_dets_frame, text="Location:", font=("Helvetica", 12)).grid(column=0, row=0, sticky=tk.W)
+loc = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=search_options)
+loc.grid(row=1, column=1, columnspan=2)
+
+#Address
+tb.Label(Prop_dets_frame, text="Address:", font=("Helvetica", 12)).grid(column=0, row=1, sticky=tk.W)
+address = tb.Entry(Prop_dets_frame)
+address.grid(row=2, column=1, columnspan=2, sticky=tk.E)
+
+# Number of rooms
+tb.Label(Prop_dets_frame, text="No of rooms (BHK):", font=("Helvetica", 12)).grid(column=0, row=3, sticky=tk.W)
+bhk = tb.Entry(Prop_dets_frame)
+bhk.grid(row=3, column=1, columnspan=2, sticky=tk.E)
+
+# Area sqft
+tb.Label(Prop_dets_frame, text="Area sqft:", font=("Helvetica", 12)).grid(column=0, row=4, sticky=tk.W)
+area = tb.Entry(Prop_dets_frame)
+area.grid(row=4, column=1, columnspan=2, sticky=tk.E)
+
+# Furnishing details
+tb.Label(Prop_dets_frame, text="Furnishing details:", font=("Helvetica", 12)).grid(column=0, row=5, sticky=tk.W)
+fur_list = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"]
+fur = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=fur_list)
+fur.grid(row=5, column=1, columnspan=2)
+
+# Parking Availability
+tb.Label(Prop_dets_frame, text="Parking Availability", font=("Helvetica", 12)).grid(column=0, row=6, sticky=tk.W)
+park = tk.BooleanVar()
+Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=1)
+Yes.grid(row=6, column=1)
+No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=0)
+No.grid(row=6, column=2)
+
+# Age of Property
+tb.Label(Prop_dets_frame, text="Age of Property", font=("Helvetica", 12)).grid(column=0, row=7, sticky=tk.W)
+age = tb.Entry(Prop_dets_frame)
+age.grid(row=7, column=1, columnspan=2, sticky=tk.E)
+
+# Description
+tb.Label(Prop_dets_frame, text="Description", font=("Helvetica", 12)).grid(column=0, row=8, sticky=tk.W)
+desc = tb.Entry(Prop_dets_frame)
+desc.grid(row=8, column=1, columnspan=2, sticky=tk.E)
 
 
 #>>>>>>>>>>>>>>>>>> End of Code <<<<<<<<<<<<<<<<<<<<<<
