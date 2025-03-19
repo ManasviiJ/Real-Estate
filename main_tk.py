@@ -482,29 +482,30 @@ def edit_profile():
     img = Image.open(profile_pic).resize((130,130))
     profile_icon_lb_img = ImageTk.PhotoImage(img)  # Store in a variable
     
-    def upload_profile_image():
-        global profile_img, profile_img_path, l1  # Keep reference to avoid garbage collection
+    def upload_profile_image(profile_icon_lb):
+        global profile_img_path, l1  # Keep reference to avoid garbage collection
 
         # Open file dialog to select image
         file_path = filedialog.askopenfilename(
             title="Select Profile Picture",
             filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")]
         )
-            
+        
         if file_path:  # If a file was selected
             profile_img_path = os.path.relpath(file_path)
             profile_img_path = os.path.normpath(profile_img_path)
             profile_img_path = profile_img_path.replace("\\", "\\\\")  # Double backslashes for MySQL
-            img = Image.open(profile_img_path).resize((70, 70), Image.Resampling.LANCZOS)
-            profile_img = ImageTk.PhotoImage(img)
 
+            img = Image.open(profile_img_path).resize((130, 130), Image.Resampling.LANCZOS)  # Resize image
+            profile_img = ImageTk.PhotoImage(img)
 
             # Update the displayed image in GUI
             profile_btn.config(image=profile_img)
             profile_btn.image = profile_img  # Keep reference
             
-            profile_icon_lb.config(image=ImageTk.PhotoImage(Image.open(profile_img_path).resize((130, 130), Image.Resampling.LANCZOS)))
-                
+            profile_icon_lb.config(image=profile_img)  # Update label
+            profile_icon_lb.image = profile_img  # Keep reference to avoid garbage collection
+
             print(file_path)
             print(profile_img_path)
 
@@ -512,7 +513,8 @@ def edit_profile():
             cursor.execute("UPDATE users SET profile_pic = '{}' WHERE username = '{}'".format(profile_img_path, pfp_user_email))
             mycon.commit()
 
-            print(f"Profile image updated in database: {profile_img_path}")    
+            print(f"Profile image updated in database: {profile_img_path}")
+    
 
     def reset_pass(uname):
         # Move reset_password OUTSIDE check_reg_email
@@ -563,7 +565,7 @@ def edit_profile():
         new_uname=emailadd_entry.get()
 
         if not new_name or not new_phone or not new_uname:
-            messagebox.showerror("Error","All fields are required")
+            messagebox.showerror("ERROR","All fields are required")
             return
 
         if new_phone != phone:
@@ -571,7 +573,7 @@ def edit_profile():
                 cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
                 mycon.commit()
             else:
-                messagebox.showerror("Invalid phone number!")
+                messagebox.showerror("ERROR","Invalid phone number!")
                 return
     
         if new_name != name:
@@ -580,7 +582,7 @@ def edit_profile():
 
         if new_uname != pfp_user_email:
             if not is_valid_email(new_uname):
-                messagebox.showerror("Error", "Invalid email address")
+                messagebox.showerror("ERROR", "Invalid email address")
                 return
             else:
                 cursor.execute("UPDATE users SET username = %s WHERE username = %s", (new_uname, pfp_user_email))
@@ -605,7 +607,7 @@ def edit_profile():
     profile_icon_lb.pack(pady=(18,6))
     
     
-    tb.Button(editprof_window, text="Change your profile photo", bootstyle=(WARNING,LINK), command=upload_profile_image).pack(pady=(0,18)) 
+    tb.Button(editprof_window, text="Change your profile photo", bootstyle=(WARNING,LINK), command=lambda: upload_profile_image(profile_icon_lb)).pack(pady=(0,18)) 
       
     info_frame= tb.LabelFrame(editprof_window,text="User Details",bootstyle=SECONDARY)
     info_frame.pack(padx=10,pady=10,fill=X)
