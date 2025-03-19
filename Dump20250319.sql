@@ -43,6 +43,60 @@ INSERT INTO `prop_buy` VALUES ('images/peppa_house.jpg','Peppa Pig Hill House','
 UNLOCK TABLES;
 
 --
+-- Table structure for table `prop_sell_res`
+--
+
+DROP TABLE IF EXISTS `prop_sell_res`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `prop_sell_res` (
+  `TITLE` varchar(100) DEFAULT NULL,
+  `LOC` varchar(30) DEFAULT NULL,
+  `PRICE` varchar(30) DEFAULT NULL,
+  `EXTRA_BILLS` varchar(30) DEFAULT NULL,
+  `USERNAME` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `prop_sell_res`
+--
+
+LOCK TABLES `prop_sell_res` WRITE;
+/*!40000 ALTER TABLE `prop_sell_res` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prop_sell_res` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `prop_sell_res_det`
+--
+
+DROP TABLE IF EXISTS `prop_sell_res_det`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `prop_sell_res_det` (
+  `ADDRESS` varchar(255) DEFAULT NULL,
+  `BHK` varchar(100) DEFAULT NULL,
+  `AREA_SQFT` varchar(30) DEFAULT NULL,
+  `FUR_DET` varchar(30) DEFAULT NULL,
+  `AGE` varchar(30) DEFAULT NULL,
+  `PARKING` char(3) DEFAULT NULL,
+  `DESCRIPTION` varchar(255) DEFAULT NULL,
+  `IMG` varchar(255) DEFAULT NULL,
+  `VID` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `prop_sell_res_det`
+--
+
+LOCK TABLES `prop_sell_res_det` WRITE;
+/*!40000 ALTER TABLE `prop_sell_res_det` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prop_sell_res_det` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -53,7 +107,7 @@ CREATE TABLE `users` (
   `name` varchar(30) NOT NULL,
   `username` varchar(60) NOT NULL,
   `password` varchar(30) NOT NULL,
-  `phone` int DEFAULT NULL,
+  `phone` varchar(15) DEFAULT NULL,
   `role` varchar(30) DEFAULT NULL,
   `profile_pic` varchar(60) DEFAULT 'images/superhero.png',
   PRIMARY KEY (`username`)
@@ -66,7 +120,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','dd',NULL,'Owner','images\\deekshitha_new.png'),('Dio','dio@gmail.com','dio',NULL,'Tenant','images\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/irene.png'),('Manasvi','manasvi@gmail.com','man',NULL,'Tenant','images/manasvi.png'),('Paridhi','pari@org.in','pari',NULL,'Agent','images/superhero.png');
+INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','dd',NULL,'Owner','images\\deekshitha_new.png'),('Dio','dio@gmail.com','dio','None','Owner','images\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/irene.png'),('Manasvi','manasvi@gmail.com','man',NULL,'Tenant','images/manasvi.png'),('Paridhi','pari@org.in','pari',NULL,'Agent','images/superhero.png'),('Yamini Pandey','yami@gmail.com','rr','1234567890','Owner','images\\dio.png');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -79,4 +133,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-18  0:46:47
+-- Dump completed on 2025-03-19 19:53:22

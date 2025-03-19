@@ -25,10 +25,11 @@ login_frame.pack(expand=True, fill='both')
 
 main_frame=tb.Frame(root)
 
-property_detail_frame = tb.Frame(root)
-
 profile_frame = tb.Frame(root)
 
+prop_detail_frame = tb.Frame(root)
+
+post_prop_frame = tb.Frame(root)
 
 # >>>>>>>>>> THE LOGIN FRAME FUNCTIONS <<<<<<<<<<
 
@@ -337,9 +338,8 @@ sidebar = tb.Frame(main_frame, width=0, height=750)
 sidebar.grid(row=0,column=0,sticky=NW, rowspan=3)
 
 # COMMON Functions   
-def back_to_main_frame():
-    profile_frame.pack_forget()
-    property_detail_frame.pack_forget()
+def back_to_main_frame(frame):
+    frame.pack_forget()
     main_frame.pack(expand=TRUE,fill=BOTH)
 
 def new_frame_open(frame):
@@ -400,7 +400,7 @@ def create_property_frame(property_data, parent_frame):
 
     # Load image
     imgVar = ImageTk.PhotoImage(Image.open(property_data["image_path"]).resize((350, 200)))
-    img_button = tb.Button(prop_frame, image=imgVar, bootstyle=tb.LINK, command=lambda: new_frame_open(property_detail_frame))
+    img_button = tb.Button(prop_frame, image=imgVar, bootstyle=tb.LINK, command=lambda: new_frame_open(prop_detail_frame))
     img_button.image = imgVar  # Keep reference to avoid garbage collection
     img_button.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
 
@@ -453,16 +453,11 @@ listbox=tk.Listbox(search_entry_frame)
 listbox.bind("<<ListboxSelect>>",entry_fill)
 
 # UI Under SIDEBAR
-
-
-
-
-
-
-
-
-
-
+if pfp_user_email is not None:
+    cursor.execute("select * from users where username = '{}'".format(pfp_user_email))
+    data = cursor.fetchall
+    if data[4] == "Owner":
+        tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=WARNING, command=lambda: new_frame_open(post_prop_frame)).pack(pady=10)
 
 
 
@@ -508,7 +503,7 @@ def edit_profile():
             profile_btn.config(image=profile_img)
             profile_btn.image = profile_img  # Keep reference
             
-            profile_icon_lb.config(image=bigger_profile_img)
+            profile_icon_lb.config(image=ImageTk.PhotoImage(Image.open(profile_img_path).resize((130, 130), Image.Resampling.LANCZOS)))
                 
             print(file_path)
             print(profile_img_path)
@@ -571,24 +566,22 @@ def edit_profile():
             messagebox.showerror("Error","All fields are required")
             return
 
-        if new_phone.isdigit() and len(new_phone) <= 10:
-            cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
-            mycon.commit()
-        else:
-            print("Invalid phone number!")
+        if new_phone != phone:
+            if new_phone.isdigit() and len(new_phone) <= 10:
+                cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
+                mycon.commit()
+            else:
+                messagebox.showerror("Invalid phone number!")
+                return
     
-        if new_name!=name:
+        if new_name != name:
             cursor.execute("UPDATE users SET name = %s WHERE username = %s", (new_name, pfp_user_email))
-            mycon.commit()
-
-
-        if new_phone!=phone:
-            cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
             mycon.commit()
 
         if new_uname != pfp_user_email:
             if not is_valid_email(new_uname):
                 messagebox.showerror("Error", "Invalid email address")
+                return
             else:
                 cursor.execute("UPDATE users SET username = %s WHERE username = %s", (new_uname, pfp_user_email))
                 mycon.commit()
@@ -649,7 +642,7 @@ def edit_profile():
 pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
   
-tb.Button(pfp_btn_frame, text="Go Back", command=back_to_main_frame).pack(pady=(0,20), fill=BOTH, padx=(10,0))
+tb.Button(pfp_btn_frame, text="Go Back", command=lambda: back_to_main_frame(profile_frame)).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING, command=edit_profile).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
 tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 
