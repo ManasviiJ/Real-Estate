@@ -19,6 +19,11 @@ root.title("Real Estate Management")
 mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
 cursor = mycon.cursor()
 
+
+
+
+
+
 # >>>>> Create Frames
 login_frame=tb.Frame(root)
 login_frame.pack(expand=True, fill='both')
@@ -30,6 +35,11 @@ profile_frame = tb.Frame(root)
 prop_detail_frame = tb.Frame(root)
 
 post_prop_frame = tb.Frame(root)
+
+
+
+
+
 
 # >>>>>>>>>> THE LOGIN FRAME FUNCTIONS <<<<<<<<<<
 
@@ -305,6 +315,11 @@ def show_password():
      
 
 
+
+
+
+
+
 # >>>>>>>>>>>>>>>>> THE LOGIN FRAME UI <<<<<<<<<<<<<<<<
 
 tb.Label(login_frame,text="Login or Sign Up", font=("Verdana", 24)).pack(side=TOP, pady=10 )
@@ -333,6 +348,12 @@ tb.Button(container, text="Sign Up", bootstyle=(INFO, OUTLINE), width=10,command
 
 forgot = tb.Button(login_frame, text="Forgot Password", bootstyle=(INFO, LINK),width=25,state=DISABLED, command=check_reg_email)
 forgot.pack(side=TOP, padx=5, pady=0)
+
+
+
+
+
+
 
 
 # >>>>>>>>>>>>>>>>> MAIN FRAME FUNCTIONS <<<<<<<<<<<<<<<<
@@ -444,6 +465,11 @@ for prop in properties[::3]:
     create_property_frame(prop, sf)
 
 
+
+
+
+
+
 # >>>>>>>>>>>>>>>> MAIN FRAME UI <<<<<<<<<<<<<<<<
 
 tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid(column=1,row=0,padx=10,pady=10)
@@ -461,6 +487,8 @@ search_entry.bind("<KeyRelease>",suggest_places)
 
 listbox=tk.Listbox(search_entry_frame)
 listbox.bind("<<ListboxSelect>>",entry_fill)
+
+
 
 
 
@@ -643,6 +671,11 @@ def edit_profile():
     
     tb.Button(editprof_window, text="SAVE CHANGES", bootstyle = SUCCESS, command=edit_profile_submit).pack(pady=20)
     
+    
+    
+    
+    
+    
 # >>>>>>>>>>>>>>>> PROFILE PAGE UI <<<<<<<<<<<<<<<<
 
 pfp_btn_frame = tb.Frame(profile_frame)
@@ -798,12 +831,22 @@ submit_button.grid(row=8, column=0, columnspan=3, pady=30)
 
 
 
+
+
+
+
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
 pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
 tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
 tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+
+
+
+
+
+
 
 
 #>>>>>>>>>>>>>>>>>> End of Code <<<<<<<<<<<<<<<<<<<<<<
