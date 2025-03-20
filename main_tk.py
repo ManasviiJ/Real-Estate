@@ -468,7 +468,7 @@ for prop in properties[::3]:
 
 tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid(column=1,row=0,padx=10,pady=10)
 
-# UI Under SEARCH FRAME
+#>>>>  UI Under SEARCH FRAME
 search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
 search_entry_frame.grid(row=1, column=1, columnspan=2)
 
