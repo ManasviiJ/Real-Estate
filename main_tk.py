@@ -176,6 +176,16 @@ def create_profile(the_username):                               ## prev user dat
     l5 = tb.Label(profile_frame, text=f"{role}", font=("Arial Bold",12))
     l5.grid(row=5,column=3,padx=100,pady=20,sticky=E)
     l5.dynamic = True  # Mark as dynamic
+    
+    #"Post your property button for user:OWNER"
+    if role== "Owner":
+        post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=lambda:new_frame_open(post_prop_frame))
+        post_prop_button.grid(row=1,column=0,pady=10)
+    
+    else:
+        for widget in sidebar.winfo_children():
+            if isinstance(widget,tb.Button) and widget.cget("text")=="POST\nYOUR\nPROPERTY":
+                widget.destroy()
 
 # Functions under the SIGN UP Button
 def show_signup_window():
@@ -452,17 +462,7 @@ search_entry.bind("<KeyRelease>",suggest_places)
 listbox=tk.Listbox(search_entry_frame)
 listbox.bind("<<ListboxSelect>>",entry_fill)
 
-# UI Under SIDEBAR
-if pfp_user_email is not None:
-    cursor.execute("select * from users where username = '{}'".format(pfp_user_email))
-    data = cursor.fetchall
-    if data[4] == "Owner":
-        tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=SUCCESS, command=lambda: new_frame_open(post_prop_frame)).pack(pady=10)
 
-style = tb.Style()
-style.configure("success.TButton", anchor="center", justify="center")
-
-tb.Button(sidebar, text="Post\nyour\nproperty", bootstyle=SUCCESS, command=lambda: new_frame_open(post_prop_frame)).grid(row=1,column=0,pady=10)
 
 
 
@@ -492,7 +492,7 @@ def edit_profile():
         # Open file dialog to select image
         file_path = filedialog.askopenfilename(
             title="Select Profile Picture",
-            filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")]
+            filetypes=[("Image Files", ".png;.jpg;.jpeg;.gif;*.bmp")]
         )
         
         if file_path:  # If a file was selected
