@@ -470,64 +470,6 @@ tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid
 
 #>>>>  UI Under SEARCH FRAME
 
-# UI Under SEARCH FRAME
-search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
-search_entry_frame.grid(row=1, column=1, columnspan=2)
-
-style = tb.Style()
-style.configure(
-    "Green.TCombobox",
-    background="#ffffff",  
-    foreground="#333333",  
-    font=("Arial", 12),    
-    padding=5,            
-    bordercolor="#28a745", 
-    lightcolor="#28a745", 
-    darkcolor="#28a745",  
-    arrowsize=12,         
-    selectbackground="#28a745",  
-    selectforeground="#ffffff"  
-)
-
-style.map(
-    "Green.TCombobox",
-    background=[("active", "#e6f3ff")], 
-    foreground=[("active", "#000000")], 
-    bordercolor=[("active", "#218838")]  
-)
-
-property_type_var = tk.StringVar()
-
-
-property_type_combo = tb.Combobox(
-    search_entry_frame,
-    textvariable=property_type_var,
-    values=["Properties for Sale", "Properties for Lease"],
-    state="readonly",
-    width=20,
-    style="Green.TCombobox"  
-)
-property_type_combo.grid(row=0, column=0, padx=5, pady=5)
-property_type_combo.current(0) 
-
-search_entry_var = tk.StringVar()
-search_entry = tb.Entry(
-    search_entry_frame,
-    textvariable=search_entry_var,
-    bootstyle="primary",
-    width=50
-)
-search_entry.grid(row=0, column=1, padx=5, pady=5)
-
-
-search_entry_button = tb.Button(
-    search_entry_frame,
-    text="Go",
-    bootstyle="success"
-)
-search_entry_button.grid(row=0, column=2, padx=5, pady=5)
-
-
 search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
 search_entry_frame.grid(row=1, column=1, columnspan=2)
 
