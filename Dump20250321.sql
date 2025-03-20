@@ -81,7 +81,7 @@ CREATE TABLE `prop_lease` (
   `title` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `rent_price` decimal(15,2) DEFAULT NULL,
-  `security_deposit` decimal(15,2) DEFAULT NULL,
+  `extra_bills` decimal(15,2) DEFAULT NULL,
   `lease_duration` varchar(50) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `status` enum('Available','Leased') DEFAULT NULL,
@@ -117,8 +117,8 @@ CREATE TABLE `prop_sale` (
   `title` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `price` decimal(15,2) DEFAULT NULL,
-  `description` varchar(1000) DEFAULT NULL,
   `status` enum('Available','Sold') DEFAULT NULL,
+  `bhk` int DEFAULT NULL,
   PRIMARY KEY (`property_id`),
   KEY `owner_username` (`owner_username`),
   KEY `location_city` (`location_city`),
@@ -133,7 +133,7 @@ CREATE TABLE `prop_sale` (
 
 LOCK TABLES `prop_sale` WRITE;
 /*!40000 ALTER TABLE `prop_sale` DISABLE KEYS */;
-INSERT INTO `prop_sale` VALUES ('SRAAP0003','Deekshi@gmail.com','Apartment','Vijaywada','Palatial Heights','Palatial Heights 45, Krishna Riverside Avenue,Benz Circle, Vijayawada, Andhra Pradesh 520008',350000000.00,'Welcome to Palatial Heights, an exquisite residential property located in the heart of Vijayawada. Nestled on Krishna Riverside Avenue, this luxurious home offers unparalleled comfort, breathtaking views, and a lifestyle of opulence.','Available'),('SRIUK0001','Deekshi@gmail.com','Independent House','Dehradun','Himalayan Haveli','Cheel Ghosla Cottage, 45 Pine Ridge Road',170000000.00,'A MAJESTIC RETREAT AMIDST THE MOUNTAINS. Perched on a serne hillside, Himalayan Haveli is a breathtaking blend of traditional architecture and modern luxury, offering an unparalleled escape into the lap of the Himalayas. Surrounded by lush pine forests, cascading waterfalls, and panoramic views of snow-capped peaks, this haveli is a sanctuary of peace and grandeur.','Available'),('SRVGA0002','dio@gmail.com','Villa','Panaji','Sagarkila Villa','Sagarika Villa\n14 Fisherman\'s Wharf Road\nCalangute, Goa 403516\n',250000000.00,'Sagarika Villa ? A Slice of Paradise in Calangute, Goa\nEscape to your own private haven at Sagarika Villa, a luxurious 3-bedroom seaside retreat nestled on the golden shores of Calangute Beach. This exquisite property combines traditional Goan-Portuguese architecture with modern comforts, offering the perfect blend of elegance and relaxation.','Available');
+INSERT INTO `prop_sale` VALUES ('SRAAP0003','Deekshi@gmail.com','Apartment','Vijaywada','Palatial Heights','Palatial Heights 45, Krishna Riverside Avenue,Benz Circle, Vijayawada, Andhra Pradesh 520008',350000000.00,'Available',10),('SRIUK0001','Deekshi@gmail.com','Independent House','Dehradun','Himalayan Haveli','Cheel Ghosla Cottage, 45 Pine Ridge Road',170000000.00,'Available',10),('SRVGA0002','dio@gmail.com','Villa','Panaji','Sagarkila Villa','Sagarika Villa\n14 Fisherman\'s Wharf Road\nCalangute, Goa 403516\n',250000000.00,'Available',10);
 /*!40000 ALTER TABLE `prop_sale` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -152,7 +152,7 @@ CREATE TABLE `res_prop_img` (
   PRIMARY KEY (`image_id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `res_prop_img_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `prop_sale` (`property_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,7 +161,7 @@ CREATE TABLE `res_prop_img` (
 
 LOCK TABLES `res_prop_img` WRITE;
 /*!40000 ALTER TABLE `res_prop_img` DISABLE KEYS */;
-INSERT INTO `res_prop_img` VALUES (1,'SRIUK0001','[\"images/prop_res/hh_dehradun(1).png\", \"images/prop_res/hh_dehradun(2).png\", \"images/prop_res/hh_dehradun(3).png\"]','Sale'),(2,'SRVGA0002','[\"images/prop_res/sv_panaji(1).png\", \"images/prop_res/sv_panaji(2).png\", \"images/prop_res/sv_panaji(3).png\"]','Sale'),(3,'SRAAP0003','[\"images/prop_res/ph_vijaywada(1).png\", \"images/prop_res/ph_vijaywada(2).png\", \"images/prop_res/ph_vijaywada(3).png\"]','Sale');
+INSERT INTO `res_prop_img` VALUES (1,'SRIUK0001','images/prop_res/hh_dehradun(1).png','Sale'),(2,'SRIUK0001','images/prop_res/hh_dehradun(2).png','Sale'),(3,'SRIUK0001','images/prop_res/hh_dehradun(3).png','Sale'),(4,'SRVGA0002','images/prop_res/sv_panaji(1).png','Sale'),(5,'SRVGA0002','images/prop_res/sv_panaji(2).png','Sale'),(6,'SRVGA0002','images/prop_res/sv_panaji(3).png','Sale'),(7,'SRAAP0003','images/prop_res/ph_vijaywada(1).png','Sale'),(8,'SRAAP0003','images/prop_res/ph_vijaywada(2).png','Sale'),(9,'SRAAP0003','images/prop_res/ph_vijaywada(3).png','Sale');
 /*!40000 ALTER TABLE `res_prop_img` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -180,7 +180,6 @@ CREATE TABLE `res_prop_lease` (
   `furnishing_details` enum('Unfurnished','Semi-furnished','Furnished') DEFAULT NULL,
   `parking_availability` tinyint(1) DEFAULT NULL,
   `age_of_property` int DEFAULT NULL,
-  `number_of_floors` int DEFAULT NULL,
   PRIMARY KEY (`res_prop_lease_id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `res_prop_lease_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `prop_lease` (`property_id`)
@@ -206,12 +205,11 @@ DROP TABLE IF EXISTS `res_prop_sale`;
 CREATE TABLE `res_prop_sale` (
   `res_prop_sale_id` int NOT NULL AUTO_INCREMENT,
   `property_id` char(10) DEFAULT NULL,
-  `bhk` int DEFAULT NULL,
   `area_sqft` int DEFAULT NULL,
   `furnishing_details` enum('Unfurnished','Semi-furnished','Furnished') DEFAULT NULL,
   `parking_availability` tinyint(1) DEFAULT NULL,
   `age_of_property` int DEFAULT NULL,
-  `number_of_floors` int DEFAULT NULL,
+  `description` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`res_prop_sale_id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `res_prop_sale_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `prop_sale` (`property_id`)
@@ -224,7 +222,7 @@ CREATE TABLE `res_prop_sale` (
 
 LOCK TABLES `res_prop_sale` WRITE;
 /*!40000 ALTER TABLE `res_prop_sale` DISABLE KEYS */;
-INSERT INTO `res_prop_sale` VALUES (1,'SRAAP0003',14,7000,'Furnished',1,12,7),(2,'SRIUK0001',6,5000,'Furnished',1,20,3),(3,'SRVGA0002',6,5000,'Furnished',1,15,3);
+INSERT INTO `res_prop_sale` VALUES (1,'SRAAP0003',7000,'Furnished',1,12,NULL),(2,'SRIUK0001',5000,'Furnished',1,20,NULL),(3,'SRVGA0002',5000,'Furnished',1,15,NULL);
 /*!40000 ALTER TABLE `res_prop_sale` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -241,7 +239,7 @@ CREATE TABLE `users` (
   `password` varchar(30) NOT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `role` varchar(30) DEFAULT NULL,
-  `profile_pic` varchar(60) DEFAULT 'images/superhero.png',
+  `profile_pic` varchar(60) DEFAULT 'images/pfp/superhero.png',
   PRIMARY KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -252,7 +250,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','dd',NULL,'Owner','images/pfp/superhero.png'),('Dio','dio@gmail.com','dio','5676765437','Owner','images/pfp/superhero.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/pfp/superhero.png'),('Manasvi','manasvi@gmail.com','man',NULL,'Tenant','images/pfp/superhero.png'),('Paridhi','pari@org.in','pari',NULL,'Agent','images/pfp/superhero.png'),('Yamini Pandey','yami@gmail.com','rr','1234567890','Owner','images/pfp/superhero.png');
+INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','dd',NULL,'Owner','images\\pfp\\deekshitha_new.png'),('Dio','dio@gmail.com','dio','5676765437','Owner','images\\pfp\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/pfp/superhero.png'),('Manasvi','manasvi@gmail.com','man','7676767676','Tenant','images\\pfp\\manasvi.png'),('Peezo','peezo@cat.in','cat','4545454545','Owner','images\\pfp\\peezo.png');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -265,4 +263,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-20  1:11:07
+-- Dump completed on 2025-03-21  1:07:33
