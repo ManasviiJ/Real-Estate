@@ -605,7 +605,7 @@ def edit_profile():
             messagebox.showerror("ERROR","All fields are required")
             return
 
-        if new_phone != phone:
+        if new_phone is not None:
             if new_phone.isdigit() and len(new_phone) <= 10:
                 cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
                 mycon.commit()
@@ -702,10 +702,20 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME FUNCTIONS <<<<<<<<<<<<<<<<
-def sell():
+def sell_select():
     price.config(text="Price")
     price_entry.config(state=DISABLED)
     lease_duration_entry.config(state=DISABLED)
+
+def lease_select():
+    price.config(text="Rent Amount")
+    
+def land_plot():
+    bhk.config(state=DISABLED)
+    fur.config(state=DISABLED)
+    park.config(state=DISABLED)
+
+
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
 ##sidebar
@@ -728,11 +738,14 @@ sell.grid(row=0, column=1, padx=10, pady=5)
 lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
 lease.grid(row=0, column=2, padx=10, pady=5)
 
+
 # PROPERTY TYPE
 tb.Label(sf2, text="PROPERTY TYPE:", font=("Montserrat", 14, "bold")).grid(row=1, column=0, pady=15, sticky=tk.W)
 prop_type_list = ['Apartment','Independent House','Villa','Commercial','Land/Plot']
 prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list, width=25)
 prop_type.grid(row=1, column=1, columnspan=2, padx=10, pady=5, sticky=tk.W)
+
+
 
 # PROPERTY DETAILS FRAME
 Prop_dets_frame = tb.LabelFrame(sf2, text="PROPERTY DETAILS", bootstyle="info")
@@ -801,7 +814,8 @@ Price_frame = tb.LabelFrame(sf2, text="PRICING DETAILS", bootstyle="info")
 Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
 # Price/Rent
-price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
 price_entry = tb.Entry(Price_frame, width=40)
 price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
 
@@ -819,9 +833,14 @@ extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
 submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
 submit_button.grid(row=8, column=0, columnspan=3, pady=30)
 
+if sell_lease == "SELL":
+    sell_select()
+else:
+    lease_select()
 
 
-
+if prop_type.get() == "Land/Plot":
+    land_plot()
 
 
 
