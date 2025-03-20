@@ -379,17 +379,11 @@ def new_frame_open(frame):
     pass
 
 # Functions under the SEARCH FRAME
-search_options = [
-    "Bellandur", "CV Raman Nagar", "Hoodi", "Krishnarajapuram", "Mahadevapura", "Marathahalli", "Varthur", "Varthur",
-    "Banaswadi", "HBR Layout", "Horamavu", "Kalyan Nagar", "Kammanahalli", "Lingarajapuram", "Ramamurthy Nagar",
-    "Hebbal", "Mathikere", "Jalahalli", "Peenya", "Vidyaranyapura", "Yelahanka", "Yeshwanthpur",
-    "Banashankari", "Basavanagudi", "Girinagar", "J. P. Nagar", "Jayanagar", "Kumaraswamy Layout", "Padmanabhanagar", "Uttarahalli",
-    "Basaveshwaranagar", "Kamakshipalya", "Kengeri", "Mahalakshmi Layout", "Nagarbhavi", "Nandini Layout", "Nayandahalli", "Rajajinagar", 
-    "Rajarajeshwari Nagar", "Vijayanagar", "Cantonment area", "Domlur", "Indiranagar", "Rajajinagar", "Malleswaram", "Pete area", 
-    "Sadashivanagar", "Seshadripuram", "Shivajinagar", "Ulsoor", "Vasanth Nagar", "R.T.Nagar", 
-    "Bommanahalli", "Bommasandra", "BTM Layout", "Electronic City", "HSR Layout", "Koramangala", "Madiwala",
-    "Anjanapura", "Arekere", "Begur", "Gottigere", "Hulimavu", "Kothnur", "Sarjapura", "Jigani", "Attibele"
-    ]
+cursor.execute("select city from loc")
+loc_cty = cursor.fetchall()
+search_options=[]
+for cty in loc_cty:
+    search_options.append(cty[0])
 
 
 def suggest_places(event):
@@ -475,19 +469,30 @@ for prop in properties[::3]:
 tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid(column=1,row=0,padx=10,pady=10)
 
 # UI Under SEARCH FRAME
-search_entry_button = tb.Button(search_entry_frame, text="Go", bootstyle=(SUCCESS,OUTLINE))
-search_entry_button.grid(row=0,column=1,pady=5,padx=10)
+search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
+search_entry_frame.grid(row=1, column=1, columnspan=2)
 
-search_entry_var=tk.StringVar()
+# Combo Box for Property Type
+property_type_var = tk.StringVar()
+property_type_combo = tb.Combobox(search_entry_frame, textvariable=property_type_var, values=["Properties for Sale", "Properties for Lease"],state="readonly", width=20)
+property_type_combo.grid(row=0, column=0, padx=5, pady=5)
+property_type_combo.current(0)  # Set default selection to "Properties for Sale"
 
-search_entry=tb.Entry(search_entry_frame,textvariable=search_entry_var, bootstyle=SUCCESS, width=80)
-search_entry.grid(row=0,column=0,padx=5,pady=5)
+# Search Entry Box
+search_entry_var = tk.StringVar()
+search_entry = tb.Entry(search_entry_frame, textvariable=search_entry_var, bootstyle=SUCCESS, width=50)
+search_entry.grid(row=0, column=1, padx=5, pady=5)
 
-search_entry.bind("<KeyRelease>",suggest_places)
+# Go Button
+search_entry_button = tb.Button(search_entry_frame, text="Go", bootstyle=(SUCCESS, OUTLINE))
+search_entry_button.grid(row=0, column=2, padx=5, pady=5)
 
-listbox=tk.Listbox(search_entry_frame)
-listbox.bind("<<ListboxSelect>>",entry_fill)
+# Bind the search entry to suggest places
+search_entry.bind("<KeyRelease>", suggest_places)
 
+# Listbox for suggestions
+listbox = tk.Listbox(search_entry_frame)
+listbox.bind("<<ListboxSelect>>", entry_fill)
 
 
 
@@ -696,6 +701,11 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 
+# >>>>>>>>>>>>>>>> POST PROP FRAME FUNCTIONS <<<<<<<<<<<<<<<<
+def sell():
+    price.config(text="Price")
+    price_entry.config(state=DISABLED)
+    lease_duration_entry.config(state=DISABLED)
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
 ##sidebar
@@ -706,7 +716,7 @@ tb.Separator(post_prop_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 1
 
 tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
 
-sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1200, height=550)
+sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1050, height=550)
 sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
 sell_lease = tk.StringVar()
@@ -720,7 +730,7 @@ lease.grid(row=0, column=2, padx=10, pady=5)
 
 # PROPERTY TYPE
 tb.Label(sf2, text="PROPERTY TYPE:", font=("Montserrat", 14, "bold")).grid(row=1, column=0, pady=15, sticky=tk.W)
-prop_type_list = ["Residential Property", "Commercial/Industrial Property", "Land/Plot"]
+prop_type_list = ['Apartment','Independent House','Villa','Commercial','Land/Plot']
 prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list, width=25)
 prop_type.grid(row=1, column=1, columnspan=2, padx=10, pady=5, sticky=tk.W)
 
@@ -735,7 +745,7 @@ title.grid(row=0, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
 # Location
 tb.Label(Prop_dets_frame, text="Location:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-loc = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=["Option1", "Option2"], width=40)  # Replace with actual options
+loc = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=search_options, width=40)  # Replace with actual options
 loc.grid(row=1, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
 # Address
@@ -755,7 +765,7 @@ area.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
 # Furnishing details
 tb.Label(Prop_dets_frame, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
-fur_list = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"]
+fur_list = ["Unfurnished", "Semi-furnished", "Furnished"]
 fur = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=fur_list, width=40)
 fur.grid(row=5, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
@@ -791,7 +801,7 @@ Price_frame = tb.LabelFrame(sf2, text="PRICING DETAILS", bootstyle="info")
 Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
 # Price/Rent
-tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
 price_entry = tb.Entry(Price_frame, width=40)
 price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
 
@@ -804,25 +814,6 @@ lease_duration_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
 tb.Label(Price_frame, text="Extra Bills:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
 extra_bills_entry = tb.Entry(Price_frame, width=40)
 extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
-
-# CONTACT INFORMATION FRAME
-Contact_frame = tb.LabelFrame(sf2, text="CONTACT INFORMATION", bootstyle="info")
-Contact_frame.grid(row=6, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
-
-# Name
-tb.Label(Contact_frame, text="Name:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
-nm_entry = tb.Entry(Contact_frame, width=40)
-nm_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
-
-# Email Id
-tb.Label(Contact_frame, text="Email Id:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-eid_entry = tb.Entry(Contact_frame, width=40)
-eid_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
-
-# Phone
-tb.Label(Contact_frame, text="Phone:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
-phone_entry = tb.Entry(Contact_frame, width=40)
-phone_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
 
 ## SUBMIT
 submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
