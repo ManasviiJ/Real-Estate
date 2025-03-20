@@ -665,64 +665,135 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
-# Sidebar
+##sidebar
 post_btn_frame = tb.Frame(post_prop_frame, width=0, height=750)
 post_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
-tb.Button(post_btn_frame, text="Go back", command=lambda: back_to_main_frame(post_prop_frame)).grid(row=0, column=0, pady=10, padx=10)
-tb.Separator(post_prop_frame, orient=tk.VERTICAL).grid(row=0, column=1, padx=(10, 50), sticky=tk.NS, rowspan=4)
+tb.Button(post_btn_frame, text="Go back", command=lambda: back_to_main_frame(post_prop_frame)).grid(row=0, column=0, pady=20, padx=20)
+tb.Separator(post_prop_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
-# Heading
-tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Montserrat", 24, "bold")).grid(row=0, column=2, columnspan=3, pady=10, sticky=tk.W)
+tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
 
-# Scrolled Frame
-sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1000, height=600)
-sf2.grid(row=1, column=2, columnspan=3, padx=10, pady=10, sticky=tk.W)
+sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1200, height=550)
+sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
-# Universal Styling
-widget_padx, widget_pady = 15, 8
-label_font = ("Montserrat", 12)
+sell_lease = tk.StringVar()
 
 # SELL OR LEASE
-tb.Label(sf2, text="SELL OR LEASE:", font=label_font).grid(row=0, column=0, pady=10, sticky=tk.W)
-tb.Radiobutton(sf2, text="SELL", variable=tk.StringVar(), value="SELL").grid(row=0, column=1)
-tb.Radiobutton(sf2, text="LEASE", variable=tk.StringVar(), value="LEASE").grid(row=0, column=2)
+tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
+sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info")
+sell.grid(row=0, column=1, padx=10, pady=5)
+lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
+lease.grid(row=0, column=2, padx=10, pady=5)
 
 # PROPERTY TYPE
-tb.Label(sf2, text="PROPERTY TYPE:", font=label_font).grid(row=1, column=0, pady=10, sticky=tk.W)
-tb.Combobox(sf2, values=["Residential", "Commercial", "Land"]).grid(row=1, column=1, columnspan=2, sticky=tk.EW)
+tb.Label(sf2, text="PROPERTY TYPE:", font=("Montserrat", 14, "bold")).grid(row=1, column=0, pady=15, sticky=tk.W)
+prop_type_list = ["Residential Property", "Commercial/Industrial Property", "Land/Plot"]
+prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list, width=25)
+prop_type.grid(row=1, column=1, columnspan=2, padx=10, pady=5, sticky=tk.W)
 
 # PROPERTY DETAILS FRAME
-Prop_dets_frame = tb.LabelFrame(sf2, text="PROPERTY DETAILS")
-Prop_dets_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky=tk.W)
+Prop_dets_frame = tb.LabelFrame(sf2, text="PROPERTY DETAILS", bootstyle="info")
+Prop_dets_frame.grid(row=2, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
-# Form Fields
-def add_field(parent, text, row):
-    tb.Label(parent, text=text, font=label_font).grid(column=0, row=row, sticky=tk.W, padx=widget_padx, pady=widget_pady)
-    tb.Entry(parent).grid(row=row, column=1, columnspan=2, padx=widget_padx, pady=widget_pady, sticky=tk.EW)
+# Title
+tb.Label(Prop_dets_frame, text="Title:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+title = tb.Entry(Prop_dets_frame, width=40)
+title.grid(row=0, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
-fields = ["Title", "Location", "Address", "No. of Rooms (BHK)", "Area sqft", "Age of Property"]
-for idx, field in enumerate(fields):
-    add_field(Prop_dets_frame, field + ":", idx)
+# Location
+tb.Label(Prop_dets_frame, text="Location:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+loc = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=["Option1", "Option2"], width=40)  # Replace with actual options
+loc.grid(row=1, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+
+# Address
+tb.Label(Prop_dets_frame, text="Address:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+address = tb.Entry(Prop_dets_frame, width=40)
+address.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+
+# Number of rooms
+tb.Label(Prop_dets_frame, text="No of rooms (BHK):", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
+bhk = tb.Entry(Prop_dets_frame, width=40)
+bhk.grid(row=3, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+
+# Area sqft
+tb.Label(Prop_dets_frame, text="Area sqft:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
+area = tb.Entry(Prop_dets_frame, width=40)
+area.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+
+# Furnishing details
+tb.Label(Prop_dets_frame, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
+fur_list = ["Unfurnished", "Semi-Furnished", "Fully-Furnished"]
+fur = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=fur_list, width=40)
+fur.grid(row=5, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+
+# Parking Availability
+tb.Label(Prop_dets_frame, text="Parking Availability", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
+park = tk.BooleanVar()
+Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=1, bootstyle="info")
+Yes.grid(row=6, column=1, padx=10, pady=10)
+No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=0, bootstyle="info")
+No.grid(row=6, column=2, padx=10, pady=10)
+
+# Age of Property
+tb.Label(Prop_dets_frame, text="Age of Property", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
+age = tb.Entry(Prop_dets_frame, width=40)
+age.grid(row=7, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
 # Description
-tb.Label(Prop_dets_frame, text="Description:", font=label_font).grid(column=0, row=8, sticky=tk.W, padx=widget_padx, pady=widget_pady)
-tk.Text(Prop_dets_frame, height=4, width=40).grid(row=8, column=1, columnspan=2, padx=widget_padx, pady=widget_pady, sticky=tk.EW)
+tb.Label(Prop_dets_frame, text="Description", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
+desc = tb.Entry(Prop_dets_frame, width=40)
+desc.grid(row=8, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
 
-# PRICING FRAME
-Price_frame = tb.LabelFrame(sf2, text="PRICING DETAILS")
-Price_frame.grid(row=5, column=0, columnspan=3, padx=15, pady=15, sticky=tk.EW)
-for idx, field in enumerate(["Price/Rent", "Lease Duration", "Extra Bills"]):
-    add_field(Price_frame, field + ":", idx)
+# UPLOADING MEDIA
+style = tb.Style()
+style.configure("Warning.Link.TButton", font=("Montserrat", 12), foreground="#FFC107")
 
-# CONTACT FRAME
-Contact_frame = tb.LabelFrame(sf2, text="CONTACT INFORMATION")
-Contact_frame.grid(row=6, column=0, columnspan=3, padx=15, pady=15, sticky=tk.EW)
-for idx, field in enumerate(["Name", "Email Id", "Phone"]):
-    add_field(Contact_frame, field + ":", idx)
+tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton").grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
 
-# Submit Button
-tb.Button(sf2, text="SUBMIT", bootstyle="success").grid(row=8, column=0, columnspan=3, pady=20)
+sf3 = ScrolledFrame(sf2, autohide=True, height=100)
+sf3.grid(row=4, column=0, columnspan=5, padx=20, pady=20, sticky=W)
 
+# PRICING DETAILS FRAME
+Price_frame = tb.LabelFrame(sf2, text="PRICING DETAILS", bootstyle="info")
+Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
+
+# Price/Rent
+tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+price_entry = tb.Entry(Price_frame, width=40)
+price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
+
+# Lease Duration
+tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+lease_duration_entry = tb.Entry(Price_frame, width=40)
+lease_duration_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+
+# Extra Bills
+tb.Label(Price_frame, text="Extra Bills:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+extra_bills_entry = tb.Entry(Price_frame, width=40)
+extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
+
+# CONTACT INFORMATION FRAME
+Contact_frame = tb.LabelFrame(sf2, text="CONTACT INFORMATION", bootstyle="info")
+Contact_frame.grid(row=6, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
+
+# Name
+tb.Label(Contact_frame, text="Name:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+nm_entry = tb.Entry(Contact_frame, width=40)
+nm_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
+
+# Email Id
+tb.Label(Contact_frame, text="Email Id:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+eid_entry = tb.Entry(Contact_frame, width=40)
+eid_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+
+# Phone
+tb.Label(Contact_frame, text="Phone:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+phone_entry = tb.Entry(Contact_frame, width=40)
+phone_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
+
+## SUBMIT
+submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
+submit_button.grid(row=8, column=0, columnspan=3, pady=30)
 
 #>>>>>>>>>>>>>>>>>> End of Code <<<<<<<<<<<<<<<<<<<<<<
 root.mainloop()
