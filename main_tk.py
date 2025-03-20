@@ -402,45 +402,45 @@ def create_property_frame(property_data, parent_frame):
     index = properties.index(property_data)
     
      # Determine row and column based on index
-    row = index // 3  # Ensures every 3 items go to the next row
-    column = index % 3  # 3 columns per row
+    row = index // 9  # Ensures every 3 items go to the next row
+    column = index % 9  # 3 columns per row
 
     prop_frame = tb.Labelframe(parent_frame, text="Buy")
     prop_frame.grid(row=row, column=column, padx=10, pady=10, sticky="ew")
 
     # Load image
-    imgVar = ImageTk.PhotoImage(Image.open(property_data["image_path"]).resize((350, 200)))
+    imgVar = ImageTk.PhotoImage(Image.open(property_data["img"]).resize((350, 200)))
     img_button = tb.Button(prop_frame, image=imgVar, bootstyle=tb.LINK, command=lambda: new_frame_open(prop_detail_frame))
     img_button.image = imgVar  # Keep reference to avoid garbage collection
     img_button.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
 
     # Property name and builder
-    tb.Label(prop_frame, text=property_data["name"], font=("montserrat", 12), anchor="w").grid(row=1, column=0, padx=10, sticky="w")
-    tb.Label(prop_frame, text=property_data["builder"], font=("montserrat", 8), anchor="w").grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="w")
+    tb.Label(prop_frame, text=property_data["title"], font=("montserrat", 12), anchor="w").grid(row=1, column=0, padx=10, sticky="w")
+    tb.Label(prop_frame, text=property_data["name"], font=("montserrat", 8), anchor="w").grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="w")
 
     # Property details and location
-    tb.Label(prop_frame, text=property_data["details"], font=("montserrat", 12), anchor="w").grid(row=3, column=0, padx=10, sticky="w")
-    tb.Label(prop_frame, text=property_data["location"], font=("montserrat", 8), anchor="w").grid(row=4, column=0, padx=10, sticky="w")
+    tb.Label(prop_frame, text=property_data["cat"], font=("montserrat", 12), anchor="w").grid(row=3, column=0, padx=10, sticky="w")
+    tb.Label(prop_frame, text=property_data["city"], font=("montserrat", 8), anchor="w").grid(row=4, column=0, padx=10, sticky="w")
 
     # Price range
-    tb.Label(prop_frame, text=property_data["price_range"], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
+    tb.Label(prop_frame, text=property_data["price"], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
 
-cursor.execute("select * from prop_buy")
+cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, price from res_prop_img i, prop_sale p where i.property_id = p.property_id;")
 prop_list = cursor.fetchall()
 properties = []
 for prop in prop_list:
     properties.append({
-        "image_path":prop[0],
-        "name":prop[1],
-        "builder":prop[2],
-        "details":prop[3],
-        "location":prop[4],
-        "price_range":prop[5]
+        "img":prop[0],
+        "title":prop[1],
+        "name":prop[2],
+        "cat":prop[3],
+        "city":prop[4],
+        "price":prop[5]
     })
     
 # UI Under PROPERTY FRAME
 
-for prop in properties:
+for prop in properties[::3]:
     create_property_frame(prop, sf)
 
 
@@ -794,6 +794,17 @@ phone_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
 ## SUBMIT
 submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
 submit_button.grid(row=8, column=0, columnspan=3, pady=30)
+
+
+
+
+# >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
+pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
+pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+
+tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
+tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+
 
 #>>>>>>>>>>>>>>>>>> End of Code <<<<<<<<<<<<<<<<<<<<<<
 root.mainloop()
