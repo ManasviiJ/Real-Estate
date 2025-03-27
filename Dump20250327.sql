@@ -40,33 +40,6 @@ INSERT INTO `loc` VALUES ('Karnataka','Bangalore'),('Uttar Pradesh','Noida'),('M
 UNLOCK TABLES;
 
 --
--- Table structure for table `prop_buy`
---
-
-DROP TABLE IF EXISTS `prop_buy`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `prop_buy` (
-  `image_path` varchar(60) DEFAULT NULL,
-  `name` varchar(60) DEFAULT NULL,
-  `builder` varchar(60) DEFAULT NULL,
-  `details` varchar(60) DEFAULT NULL,
-  `location` varchar(60) DEFAULT NULL,
-  `price_range` bigint DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `prop_buy`
---
-
-LOCK TABLES `prop_buy` WRITE;
-/*!40000 ALTER TABLE `prop_buy` DISABLE KEYS */;
-INSERT INTO `prop_buy` VALUES ('images/peppa_house.jpg','Peppa Pig Hill House','Peppa Constructions','2-storey, 2BHK','The Hill, Countryside',5000000),('images/emily_house.png','Emily Elephant Hill House','Elephant Constructions','2-storey, 2BHK','The Hill, Countryside',5000000),('images/granny_house.png','Granny Pig Hill House','Grandpa Constructions','2-storey, 2BHK','The Hill, Countryside',5000000),('images/pedro_house.png','Pedro Horse Hill House','Horse Constructions','2-storegggy, 2BHK','The Hill, Countryside',5000000),('images/peppa_house.jpg','Peppa Pig Hill House','Peppa Constructions','2-storey, 2BHK','The ggHill, Countryside',5000000),('images/peppa_house.jpg','Peppa Pig Hill House','Peppagg Constructions','2-storey, 2BHK','The Hill, Countryside',5000000),('images/peppa_house.jpg','Peppa Piggg Hill House','Peppa Constructions','2-storey, 2BHK','The Hill, Countryside',5000000),('images/emily_house.png','Emilyyy Elephant Hill House','Elephant Constructions','2-storey, 2BHK','The Hill, Countryside',6000000);
-/*!40000 ALTER TABLE `prop_buy` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `prop_lease`
 --
 
@@ -263,4 +236,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-21  1:07:33
+-- Dump completed on 2025-03-27 15:46:05
