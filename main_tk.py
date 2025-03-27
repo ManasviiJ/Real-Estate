@@ -707,7 +707,7 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
-def post_prop_frame_open():
+def post_prop_open():
     new_frame_open(post_prop_frame)
     ##sidebar
     post_btn_frame = tb.Frame(post_prop_frame, width=0, height=750)
@@ -841,11 +841,12 @@ def post_prop_frame_open():
 
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
-pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
-pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+def prop_det_open():
+    pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
+    pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
-tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
-tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
 
 
