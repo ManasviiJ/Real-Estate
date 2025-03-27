@@ -189,7 +189,7 @@ def create_profile(the_username):                               ## prev user dat
     
     #"Post your property button for user:OWNER"
     if role== "Owner":
-        post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop__open)
+        post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop_open)
         post_prop_button.grid(row=1,column=0,pady=10)
     
     else:
