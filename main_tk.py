@@ -720,7 +720,7 @@ def post_prop_open():
     sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1050, height=550)
     sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
-    sell_lease = tk.StringVar()
+    sell_lease = tk.StringVar(value='SELL')
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
@@ -820,19 +820,56 @@ def post_prop_open():
     extra_bills_entry = tb.Entry(Price_frame, width=40)
     extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
     
-    
-    def post_prop():
-        if sell_lease == "SELL":
-            query = "insert into prop_sale values"
+    def val_null():
+        print("sell_lease says:", sell_lease.get())
+        if sell_lease == None:
+            messagebox.showerror("Error", "Please select whether you wish to Sell or put up your property for Lease")
+            return
         else:
-            query = "insert into prop_lease values"
+            print("sell_lease says:", sell_lease)
+        if prop_type.get() == "":
+            messagebox.showerror("Error", "Please select category of property")
+            return
+        if not title.get() or loc.get() == "" or not address.get() or not bhk.get() or not area.get() or fur.get() == "" or not age.get() or not desc.get() or not price_entry.get():
+            messagebox.showerror("Error", "All Fields are Required")
+            return
+        else:
+            post_prop()
         
+        
+    def post_prop(): 
+        global pfp_user_email
+        
+        p_sl = sell_lease.get()       
         p_cat = prop_type.get()
-    
+        p_tit = title.get()
+        p_loc = loc.get()
+        p_add = address.get()
+        p_bhk = bhk.get()
+        p_area = area.get()
+        p_fur = fur.get()
+        p_park = park.get()
+        p_age = age.get()
+        p_desc = desc.get()
+        p_price = price_entry.get()
+        p_ldur = lease_duration_entry.get()
+        p_exb = extra_bills_entry.get()
+        
+        if p_sl == "SELL":
+            query = f"insert into prop_sale(owner_username, property_category, location_city, title, address, price, status, bhk) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, 'Available', {p_bhk})"
+        else:
+            if not lease_duration_entry.get():
+                messagebox.showerror("Error", "Please enter lease duration")
+                return
+            query = f"insert into prop_lease(owner_username, property_category, location_city, title, address, rent_price, extra_bills, lease_duration, status) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_exb}, {p_ldur}, 'Available')"        
+        
+        cursor.execute(query)
+        mycon.commit()
+        messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
     
 
     ## SUBMIT
-    submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
+    submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20, command=val_null)
     submit_button.grid(row=8, column=0, columnspan=3, pady=30)
     
     
