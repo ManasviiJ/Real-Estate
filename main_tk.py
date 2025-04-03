@@ -452,7 +452,9 @@ for prop in prop_list:
         "city":prop[4],
         "price":prop[5]
     })
-    
+
+print("tot no. of prop:", len(properties))
+print("the prop: \n",properties)
 # UI Under PROPERTY FRAME
 
 for prop in properties[::3]:
@@ -720,7 +722,7 @@ def post_prop_open():
     sf2 = ScrolledFrame(post_prop_frame, autohide=True, width=1050, height=550)
     sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
-    sell_lease = tk.StringVar(value='SELL')
+    sell_lease = tk.StringVar()
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
@@ -795,9 +797,8 @@ def post_prop_open():
     style = tb.Style()
     style.configure("Warning.Link.TButton", font=("Montserrat", 12), foreground="#FFC107")
 
-    tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton").grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
 
-    sf3 = ScrolledFrame(sf2, autohide=True, height=100)
+    sf3 = ScrolledFrame(sf2, autohide=True, height=300, width=900)
     sf3.grid(row=4, column=0, columnspan=5, padx=20, pady=20, sticky=W)
 
     # PRICING DETAILS FRAME
@@ -825,8 +826,6 @@ def post_prop_open():
         if sell_lease == None:
             messagebox.showerror("Error", "Please select whether you wish to Sell or put up your property for Lease")
             return
-        else:
-            print("sell_lease says:", sell_lease)
         if prop_type.get() == "":
             messagebox.showerror("Error", "Please select category of property")
             return
@@ -836,11 +835,44 @@ def post_prop_open():
         else:
             post_prop()
         
-        
+    def upload_images():
+        file_paths = filedialog.askopenfilenames(title="Select Images", 
+                                                filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")])
+        if file_paths:
+            for widget in sf3.winfo_children():
+                widget.destroy()  # Clear previous images
+            print(file_paths)   # tuple of strings of absolute path
+            images.clear()
+            fp.clear()
+            
+            for path in file_paths:
+                img = Image.open(path)
+                img.thumbnail((300, 300))  # Resize for display
+                img_tk = ImageTk.PhotoImage(img)
+                images.append(img_tk)  # Store reference to prevent garbage collection
+                fp.append(path)
+                
+                index = file_paths.index(path)
+                row = index // 3
+                column = index % 3
+                
+                label = tk.Label(sf3, image=img_tk)
+                label.grid(row=row, column=column, padx=5, pady=5)
+    images =[]
+    fp = []    
+    
+    def img_in_db(fpp, pid):
+        for p in fpp:
+            ip = os.path.relpath(p)
+            ip = os.path.normpath(ip)
+            ip = ip.replace("\\", "\\\\")
+
+            query = f"insert into res_prop_img(property_id,image_path) values ({pid},{ip})"
+            cursor.execute(query)
+            mycon.commit()
+       
     def post_prop(): 
-        global pfp_user_email
-        
-        p_sl = sell_lease.get()       
+        global pfp_user_email       
         p_cat = prop_type.get()
         p_tit = title.get()
         p_loc = loc.get()
@@ -848,25 +880,32 @@ def post_prop_open():
         p_bhk = bhk.get()
         p_area = area.get()
         p_fur = fur.get()
-        p_park = park.get()
+        p_park = park
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get()
         p_ldur = lease_duration_entry.get()
         p_exb = extra_bills_entry.get()
         
-        if p_sl == "SELL":
-            query = f"insert into prop_sale(owner_username, property_category, location_city, title, address, price, status, bhk) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, 'Available', {p_bhk})"
+        if sell_lease.get() == "SELL":
+            query = f"insert into prop_sale(property_id, owner_username, property_category, location_city, title, address, price, status, bhk) values('EXEXEX0001', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, 'Available', {p_bhk})"
+            img_in_db(fp, pid)
+        
         else:
             if not lease_duration_entry.get():
                 messagebox.showerror("Error", "Please enter lease duration")
                 return
             query = f"insert into prop_lease(owner_username, property_category, location_city, title, address, rent_price, extra_bills, lease_duration, status) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_exb}, {p_ldur}, 'Available')"        
         
+        
+        
         cursor.execute(query)
         mycon.commit()
         messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
     
+    
+    #upload imgs
+    tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton", command=upload_images).grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
 
     ## SUBMIT
     submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20, command=val_null)
@@ -884,8 +923,6 @@ def prop_det_open():
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
-
-
 
 
 
