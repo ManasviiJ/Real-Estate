@@ -889,7 +889,7 @@ def post_prop_open():
         
         if sell_lease.get() == "SELL":
             query = f"insert into prop_sale(property_id, owner_username, property_category, location_city, title, address, price, status, bhk) values('EXEXEX0001', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, 'Available', {p_bhk})"
-            img_in_db(fp, pid)
+            img_in_db(fp, "EXEXEX0001")
         
         else:
             if not lease_duration_entry.get():
