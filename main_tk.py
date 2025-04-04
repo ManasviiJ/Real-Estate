@@ -188,7 +188,7 @@ def create_profile(the_username):                               ## prev user dat
     l5.dynamic = True  # Mark as dynamic
     
     #"Post your property button for user:OWNER"
-    if role== "Owner":
+    if role == "Owner":
         post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop_open)
         post_prop_button.grid(row=1,column=0,pady=10)
     
@@ -440,7 +440,7 @@ def create_property_frame(property_data, parent_frame):
     # Price range
     tb.Label(prop_frame, text=property_data["price"], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
 
-cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, price from res_prop_img i, prop_sale p where i.property_id = p.property_id;")
+cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price from res_prop_img i, properties p where i.property_id = p.property_id;")
 prop_list = cursor.fetchall()
 properties = []
 for prop in prop_list:
@@ -821,6 +821,9 @@ def post_prop_open():
     extra_bills_entry = tb.Entry(Price_frame, width=40)
     extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
     
+    # Multiple Tenants?
+    tb.Label(sf2, text="Do you wish to make your property a co-living?").grid(column=0, row=6, padx=20, pady=20, sticky=tk.EW)
+    
     def val_null():
         print("sell_lease says:", sell_lease.get())
         if sell_lease == None:
@@ -867,7 +870,7 @@ def post_prop_open():
             ip = os.path.normpath(ip)
             ip = ip.replace("\\", "\\\\")
 
-            query = f"insert into res_prop_img(property_id,image_path) values ({pid},{ip})"
+            query = f"insert into res_prop_img(property_id,image_path) values ('{pid}','{ip}')"
             cursor.execute(query)
             mycon.commit()
        
@@ -880,7 +883,7 @@ def post_prop_open():
         p_bhk = bhk.get()
         p_area = area.get()
         p_fur = fur.get()
-        p_park = park
+        p_park = park.get()
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get()
@@ -888,19 +891,23 @@ def post_prop_open():
         p_exb = extra_bills_entry.get()
         
         if sell_lease.get() == "SELL":
-            query = f"insert into prop_sale(property_id, owner_username, property_category, location_city, title, address, price, status, bhk) values('EXEXEX0001', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, 'Available', {p_bhk})"
-            img_in_db(fp, "EXEXEX0001")
+            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('EXEXEX0001', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
         
         else:
             if not lease_duration_entry.get():
                 messagebox.showerror("Error", "Please enter lease duration")
                 return
-            query = f"insert into prop_lease(owner_username, property_category, location_city, title, address, rent_price, extra_bills, lease_duration, status) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_exb}, {p_ldur}, 'Available')"        
-        
-        
+            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, lease_duration, bhk) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_ldur}, {p_bhk})"        
         
         cursor.execute(query)
         mycon.commit()
+        
+        if p_cat in ('Apartment','Independent House','Villa'):
+            query = f"insert into res_prop_det(property_id, area_sqft, furnishing_details, parking_availability, age_of_property, description) values ('EXEXEX0001', {p_area}, '{p_fur}', {p_park}, {p_age}, '{p_desc}')"
+            cursor.execute(query)
+            mycon.commit()
+                  
+        img_in_db(fp, "EXEXEX0001")
         messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
     
     
