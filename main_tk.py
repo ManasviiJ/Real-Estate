@@ -425,7 +425,7 @@ def create_property_frame(property_data, parent_frame):
 
     # Load image
     imgVar = ImageTk.PhotoImage(Image.open(property_data["img"]).resize((350, 200)))
-    img_button = tb.Button(prop_frame, image=imgVar, bootstyle=tb.LINK, command=lambda: new_frame_open(prop_detail_frame))
+    img_button = tb.Button(prop_frame, image=imgVar, bootstyle=tb.LINK, command=lambda: prop_det_open(property_data["pid"]))
     img_button.image = imgVar  # Keep reference to avoid garbage collection
     img_button.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
 
@@ -440,7 +440,7 @@ def create_property_frame(property_data, parent_frame):
     # Price range
     tb.Label(prop_frame, text=property_data["price"], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
 
-cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price from res_prop_img i, properties p where i.property_id = p.property_id;")
+cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price, property_id from res_prop_img i, properties p where i.property_id = p.property_id;")
 prop_list = cursor.fetchall()
 properties = []
 for prop in prop_list:
@@ -450,7 +450,8 @@ for prop in prop_list:
         "name":prop[2],
         "cat":prop[3],
         "city":prop[4],
-        "price":prop[5]
+        "price":prop[5],
+        "pid":prop[6]
     })
 
 print("tot no. of prop:", len(properties))
@@ -924,7 +925,7 @@ def post_prop_open():
 
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
-def prop_det_open():
+def prop_det_open(pid):
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
