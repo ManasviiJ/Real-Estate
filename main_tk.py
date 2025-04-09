@@ -440,7 +440,7 @@ def create_property_frame(property_data, parent_frame):
     # Price range
     tb.Label(prop_frame, text=property_data["price"], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
 
-cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price, property_id from res_prop_img i, properties p where i.property_id = p.property_id;")
+cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price, i.property_id from res_prop_img i, properties p where i.property_id = p.property_id;")
 prop_list = cursor.fetchall()
 properties = []
 for prop in prop_list:
@@ -932,6 +932,40 @@ def prop_det_open(pid):
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+
+    tb.Label(pdet_btn_frame, text="Property Title:", font=("Montserrat", 12)).grid(column=2, row=0, sticky="nsew", columnspan=2, padx=20, pady=10)
+    tb.Label(pdet_btn_frame, text="property Id", font=("Montserrat", 12)).grid(column=2, row=1, sticky="nsew", columnspan=2, padx=20, pady=10)
+    tb.Label(pdet_btn_frame, text="status", font=("Montserrat", 12)).grid(column=2, row=2, sticky="nsew", columnspan=2, padx=20, pady=10)
+
+    sf3 = ScrolledFrame(pdet_btn_frame, autohide=True, width=1050, height=550)
+    sf3.grid(row=3, column=2, columnspan=3, padx=20, pady=20, sticky=W)
+
+    tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Address:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Propert Category:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="bhk:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Are sqft:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Parking availabilty:", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
+
+    desc_frame = tb.LabelFrame(sf3, text="Description", padding=(10, 5))
+    desc_frame.grid(row=9, column=0, padx=10, pady=10, rowspan=2, sticky=tk.W)
+
+    sf4 = ScrolledFrame(desc_frame, autohide=True, width=1050, height=550)
+    sf4.grid(row=0, column=0, columnspan=3, padx=20, pady=20, sticky=W)
+
+    imgs_frame = tb.LabelFrame(sf3, text="Images", padding=(10, 5))
+    imgs_frame.grid(row=10, column=0, padx=10, pady=10, sticky=tk.W, rowspan=3)
+
+    own_dets_frame = tb.LabelFrame(sf3, text="Owner Details", padding=(10, 5))
+    own_dets_frame.grid(row=11, column=0, padx=10, pady=10, sticky=tk.W)
+
+    cnt_own_frame = tb.Frame(sf3, width=100, height=50)
+    cnt_own_frame.grid(row=10, column=1, padx=10, pady=10, sticky=tk.W)
 
 
 
