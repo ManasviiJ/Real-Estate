@@ -933,14 +933,23 @@ def post_prop_open():
 
         state_code=city_to_state.get(loc.get(),"XX")
         prefix=f"{sell_or_lease}{prop_code}{state_code}"
-        cursor.execute(f" " "SELECT COUNT(*) FROM properties WHERE property_id LIKE '{prefix}{prop_code}{state_code%}' " " ")
-        serial=f"{cursor.fetchone()[0]+1:04d}" #4 digit zero-padded
+        serial=1
+        while True:
+            new_id = f"{prefix}{serial:04d}"
+            
+            cursor.execute(f"SELECT 1 FROM properties WHERE property_id = '{new_id}'")
+            
+            if not cursor.fetchone():
+                return new_id
+            
+            serial+=1
+            
+            if serial>9999:
+                raise Exception("Property ID couldnt be generated after 9999 attempts")
+                
         
-        return f"{prefix}{serial}"
+      
     
-    
-
-
 
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
