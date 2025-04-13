@@ -36,7 +36,7 @@ prop_detail_frame = tb.Frame(root)
 
 post_prop_frame = tb.Frame(root)
 
-
+my_tent_frame = tb.Frame(root)
 
 
 
@@ -189,13 +189,22 @@ def create_profile(the_username):                               ## prev user dat
     
     #"Post your property button for user:OWNER"
     if role == "Owner":
-        post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop_open)
+        post_prop_button=tb.Button(sidebar,text="Post\nYour\nProperty",bootstyle=SUCCESS,command=post_prop_open)
         post_prop_button.grid(row=1,column=0,pady=10)
+        
+        my_tenants = tb.Button(sidebar, text="My\nProperties",bootstyle=SUCCESS, command=my_tent_open)
+        my_tenants.grid(row=2,column=0,pady=10)
     
     else:
         for widget in sidebar.winfo_children():
             if isinstance(widget,tb.Button) and widget.cget("text")=="POST\nYOUR\nPROPERTY":
                 widget.destroy()
+            if isinstance(widget,tb.Button) and widget.cget("text")=="My\nProperties":
+                widget.destroy()
+                
+    if role == "Tenant":
+        rent_prop = tb.Button(sidebar, text="Rented\nProperties", bootstyle=SUCCESS)
+        
 
 # Functions under the SIGN UP Button
 def show_signup_window():
@@ -926,11 +935,9 @@ def post_prop_open():
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 def prop_det_open(pid):
+    new_frame_open(prop_detail_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
-
-    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
-    tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
@@ -966,6 +973,21 @@ def prop_det_open(pid):
 
     cnt_own_frame = tb.Frame(sf3, width=100, height=50)
     cnt_own_frame.grid(row=10, column=1, padx=10, pady=10, sticky=tk.W)
+
+
+# >>>>>>>>>>>>>>>> MY TENANTS PAGE <<<<<<<<<<<<<<<<<<<
+
+def my_tent_open():
+    new_frame_open(my_tent_frame)
+    
+    tent_btn_frame = tb.Frame(my_tent_frame, width=0, height=750)
+    tent_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+
+    tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Separator(tent_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+
+    tb.Label(my_tent_frame, text="Your Tenants", font=("Monsterrat",24)).grid(row=0,column=2,padx=100)
+
 
 
 
