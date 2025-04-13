@@ -3,6 +3,68 @@
 
 *SUGGESTION:* Create a new folder in your local pc and copy all files of Real-Estate in the folder and edit. Don't forget to import the MySQL data in your local database.
 
+> # THE CODE STRUCTURE:
+Real Estate Management App
+├── Main Window Setup
+│   ├── Theme, Size, Title
+│   └── MySQL Connection
+
+├── Frame Definitions
+│   ├── login_frame
+│   ├── main_frame
+│   ├── profile_frame
+│   ├── prop_detail_frame
+│   └── post_prop_frame
+
+├── Login Frame
+│   ├── Common Login Functions
+│   ├── Sign In
+│   ├── Sign Up
+│   ├── Forgot Password
+│   ├── Email Validation
+│   └── Login Frame UI
+
+├── Main Frame
+│   ├── UI Layout
+│   ├── Sidebar & Navigation
+│   ├── Property Search
+│   │   ├── Suggest Locations
+│   │   └── Entry Fill
+│   ├── Property Display
+│   │   └── create_property_frame()
+│   └── Search Frame UI
+
+├── Profile Frame
+│   ├── Logout
+│   ├── Edit Profile
+│   │   ├── Change Image
+│   │   ├── Edit Fields
+│   │   ├── Reset Password
+│   │   └── Delete Account
+│   └── Profile Frame UI
+
+├── Post Property Frame
+│   ├── Open & Navigate
+│   ├── Post Form Sections
+│   │   ├── Sell/Lease
+│   │   ├── Property Type
+│   │   ├── Property Details
+│   │   ├── Media Upload
+│   │   ├── Pricing Details
+│   │   └── Co-living Option
+│   ├── Validate Form
+│   ├── Upload Images
+│   └── Submit to Database
+
+└── Property Detail Frame
+    ├── Open & Navigate
+    ├── Property Information Display
+    ├── Description Section
+    ├── Images Section
+    └── Owner Contact Info
+
+
+
 > # FEATURES ADDED:
 1. a sign up page with working sign in and forgot password
 3. a profile page that displays minimum user data and option to log out
