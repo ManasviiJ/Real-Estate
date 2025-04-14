@@ -159,7 +159,7 @@ def create_profile(the_username):                               ## prev user dat
         profile_btn.image = profile_img  # Keep reference
     else:
         profile_btn = tb.Button(sidebar, image=profile_img, bootstyle=tb.LINK, 
-                                command=lambda: new_frame_open(profile_frame))
+                                command=lambda: new_frame_open(profile_frame, main_frame))
         profile_btn.image = profile_img  # Keep reference
         profile_btn.grid(row=0, column=0, sticky=EW, pady=10)
 
@@ -373,14 +373,14 @@ sidebar = tb.Frame(main_frame, width=0, height=750)
 sidebar.grid(row=0,column=0,sticky=NW, rowspan=3)
 
 # COMMON Functions   
-def back_to_main_frame(frame):
-    frame.pack_forget()
-    main_frame.pack(expand=TRUE,fill=BOTH)
+def back_to_main_frame(oldFrame, newFrame):
+    oldFrame.pack_forget()
+    newFrame.pack(expand=TRUE,fill=BOTH)
 
-def new_frame_open(frame):
-    main_frame.pack_forget()
-    frame.pack(expand=TRUE, fill=BOTH)
-    pass
+def new_frame_open(newFrame, oldFrame):
+    oldFrame.pack_forget()
+    newFrame.pack(expand=TRUE, fill=BOTH)
+
 
 # >>>>> SEARCH FRAME
 cursor.execute("select city from loc")
@@ -741,7 +741,7 @@ def edit_profile():
 pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
   
-tb.Button(pfp_btn_frame, text="Go Back", command=lambda: back_to_main_frame(profile_frame)).pack(pady=(0,20), fill=BOTH, padx=(10,0))
+tb.Button(pfp_btn_frame, text="Go Back", command=lambda: back_to_main_frame(profile_frame, main_frame)).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 tb.Button(pfp_btn_frame,text="Edit", bootstyle=WARNING, command=edit_profile).pack(pady=(0,20), fill=BOTH, padx=(10,0)) 
 tb.Button(pfp_btn_frame, text="Logout", bootstyle=SECONDARY,command=logout).pack(pady=(0,20), fill=BOTH, padx=(10,0))
 
@@ -760,11 +760,11 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 # >>>>>>>>>>>>>>>> POST PROP FRAME <<<<<<<<<<<<<<<<
 def post_prop_open():
-    new_frame_open(post_prop_frame)
+    new_frame_open(post_prop_frame, main_frame)
     ##sidebar
     post_btn_frame = tb.Frame(post_prop_frame, width=0, height=750)
     post_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
-    tb.Button(post_btn_frame, text="Go back", command=lambda: back_to_main_frame(post_prop_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Button(post_btn_frame, text="Go back", command=lambda: back_to_main_frame(post_prop_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(post_prop_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
@@ -991,14 +991,11 @@ def post_prop_open():
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 def prop_det_open(pid):
-    new_frame_open(prop_detail_frame)
+    new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
-    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
-    tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
-
-    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     tb.Label(pdet_btn_frame, text="Property Title:", font=("Montserrat", 12)).grid(column=2, row=0, sticky="nsew", columnspan=2, padx=20, pady=10)
@@ -1037,14 +1034,56 @@ def prop_det_open(pid):
 # >>>>>>>>>>>>>>>> MY TENANTS PAGE <<<<<<<<<<<<<<<<<<<
 
 def my_tent_open():
-    new_frame_open(my_tent_frame)
+    def see_prop(pid):
+        print("see_prop called!")  # Add this to confirm the function is even running
+
+        f1 = tb.Frame(root)
+        new_frame_open(f1, my_tent_frame)
+        
+        f1_btn_frame = tb.Frame(f1, width=100, height=750)
+        f1_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+
+        tb.Button(f1_btn_frame, text="Go back", command=lambda: back_to_main_frame(f1, my_tent_frame)).grid(row=0, column=0, pady=10, padx=10)
+        tb.Button(f1_btn_frame, text="Edit\nProperty", bootstyle=(INFO, OUTLINE)).grid(row=1, column=0, pady=10, padx=10)
+        tb.Button(f1_btn_frame, text="Delete\nProperty", bootstyle=(DANGER,OUTLINE)).grid(row=2, column=0, pady=10, padx=10)        
+
+        tb.Separator(f1, orient=VERTICAL).grid(column=10, row=0, rowspan=20, sticky=NS)
+        f1_user_frame = tb.Frame(f1, width=200, height=600)
+        f1_user_frame.grid(row=0, column=11, rowspan=20, sticky=NS)
+        
+        tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat",12)).grid(row=0,column=0,pady=10)
+        
+        cursor.execute(f"select * from properties where property_id = '{pid}'")
+        binfo = cursor.fetchone()
+        print("this is binfo", binfo)
+        cursor.execute(f"select state from loc where city = '{binfo[3]}'")
+        state = cursor.fetchone()
+        
+        tb.Label(f1, text=f"{binfo[4]}", font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+        tb.Label(f1, text=f"{binfo[3]}, {state[0]}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
+        tb.Label(f1, text=f"{binfo[0]}", font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+
+        sf5 = ScrolledFrame(f1, width=900, height=575)
+        sf5.grid(row=3, column=1, sticky=EW)
+        
+        cursor.execute(f"select * from res_prop_img where property_id = '{pid}'")
+        imgs = cursor.fetchall()
+        
+        for idx, i in enumerate(imgs):
+            imgVar = ImageTk.PhotoImage(Image.open(i[2]).resize((300, 150)))
+            img_label = tb.Label(sf5, image=imgVar)
+            img_label.image = imgVar
+            img_label.grid(row=idx, column=0, sticky=E, padx=10, pady=10)
+
+    
+    new_frame_open(my_tent_frame, main_frame)
     
     tent_btn_frame = tb.Frame(my_tent_frame, width=0, height=750)
     tent_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
-    tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame)).grid(row=0, column=0, pady=20, padx=10)
+    tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame, main_frame)).grid(row=0, column=0, pady=20, padx=10)
 
-    sf2 = ScrolledFrame(my_tent_frame, autohide=True, width=1250, height=550)
+    sf2 = ScrolledFrame(my_tent_frame, autohide=True, width=1250, height=600)
     sf2.grid(row=1, column=2)
 
     cursor.execute(f"select * from properties where owner_username = '{pfp_user_email}'")
@@ -1072,7 +1111,7 @@ def my_tent_open():
         for i in img:
             if p[0] == i[0]:
                 imgVar = ImageTk.PhotoImage(Image.open(i[1]).resize((350, 200)))
-                img_button = tb.Button(f, image=imgVar, bootstyle=tb.LINK)
+                img_button = tb.Button(f, image=imgVar, bootstyle=tb.LINK, command=lambda pid=p[0]: see_prop(pid))
                 img_button.image = imgVar  # Keep reference to avoid garbage collection
                 img_button.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
                 break
@@ -1087,6 +1126,7 @@ def my_tent_open():
 
         # Price range
         tb.Label(f, text=p[6], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
+
 
         
         
