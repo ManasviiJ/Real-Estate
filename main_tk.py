@@ -367,7 +367,9 @@ forgot.pack(side=TOP, padx=5, pady=0)
 
 # >>>>>>>>>>>>>>>>> MAIN FRAME FUNCTIONS <<<<<<<<<<<<<<<<
 
-# Frames in Main Frame - UI
+# UI IN MAINFRAME
+tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid(column=1,row=0,padx=10,pady=10)
+
 search_entry_frame = tb.Labelframe(main_frame,text="Search property by location")
 search_entry_frame.grid(row=1,column=1,columnspan=2)
 
@@ -387,7 +389,7 @@ def new_frame_open(frame):
     frame.pack(expand=TRUE, fill=BOTH)
     pass
 
-# Functions under the SEARCH FRAME
+# >>>>> SEARCH FRAME
 cursor.execute("select city from loc")
 loc_cty = cursor.fetchall()
 search_options=[]
@@ -420,8 +422,43 @@ def entry_fill(event):
     selected_place = listbox.get(listbox.curselection())
     search_entry_var.set(selected_place)
     listbox.grid_forget()
+    
+# UI FOR SEARCH FRAME
 
-# Functions Under The PROPERTY FRAME
+search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
+search_entry_frame.grid(row=1, column=1, columnspan=2)
+
+# Combo Box for Property Type
+property_type_var = tk.StringVar()
+property_type_combo = tb.Combobox(search_entry_frame, textvariable=property_type_var, values=["All Properties", "Properties for Sale", "Properties for Lease"],state="readonly", width=20)
+property_type_combo.grid(row=0, column=0, padx=5, pady=5)
+property_type_combo.current(0)  # Set default selection to "All Properties"
+
+
+# Search Entry Box
+search_entry_var = tk.StringVar()
+search_entry = tb.Entry(search_entry_frame, textvariable=search_entry_var, bootstyle=SUCCESS, width=50)
+search_entry.grid(row=0, column=1, padx=5, pady=5)
+
+# Go Button
+search_entry_button = tb.Button(search_entry_frame, text="Go", bootstyle=(SUCCESS, OUTLINE))
+search_entry_button.grid(row=0, column=2, padx=5, pady=5)
+
+# Bind the search entry to suggest places
+search_entry.bind("<KeyRelease>", suggest_places)
+
+# Listbox for suggestions
+listbox = tk.Listbox(search_entry_frame)
+listbox.bind("<<ListboxSelect>>", entry_fill)
+
+
+
+
+
+
+
+# >>>>> The PROPERTY FRAME
+
 def create_property_frame(property_data, parent_frame):
     index = properties.index(property_data)
     
@@ -429,7 +466,12 @@ def create_property_frame(property_data, parent_frame):
     row = index // 9  # Ensures every 3 items go to the next row
     column = index % 9  # 3 columns per row
 
-    prop_frame = tb.Labelframe(parent_frame, text="Buy")
+    if property_data["pid"].startswith("S"):
+        t = "Buy"
+    else:
+        t = "Rent"
+
+    prop_frame = tb.Labelframe(parent_frame, text=t)
     prop_frame.grid(row=row, column=column, padx=10, pady=10, sticky="ew")
 
     # Load image
@@ -465,10 +507,28 @@ for prop in prop_list:
 
 print("tot no. of prop:", len(properties))
 print("the prop: \n",properties)
+
 # UI Under PROPERTY FRAME
 
 for prop in properties[::3]:
-    create_property_frame(prop, sf)
+    create_property_frame(prop,sf)
+
+def update_properties(*args):
+    # Clear existing property frames in sf
+    for widget in sf.winfo_children():
+        widget.destroy()
+
+    selected_type = property_type_var.get()
+
+    for prop in properties[::3]:
+        if selected_type == "All Properties":
+            create_property_frame(prop, sf)
+        elif selected_type == "Properties for Sale" and prop["pid"].startswith("S"):
+            create_property_frame(prop, sf)
+        elif selected_type == "Properties for Lease" and prop["pid"].startswith("L"):
+            create_property_frame(prop, sf)
+
+property_type_combo.bind("<<ComboboxSelected>>", update_properties)     
 
 
 
@@ -477,36 +537,6 @@ for prop in properties[::3]:
 
 
 # >>>>>>>>>>>>>>>> MAIN FRAME UI <<<<<<<<<<<<<<<<
-
-tb.Label(main_frame, text="Real Estate Management", font=("Helvetica", 18)).grid(column=1,row=0,padx=10,pady=10)
-
-#>>>>  UI Under SEARCH FRAME
-
-search_entry_frame = tb.Labelframe(main_frame, text="Search property by location")
-search_entry_frame.grid(row=1, column=1, columnspan=2)
-
-# Combo Box for Property Type
-property_type_var = tk.StringVar()
-property_type_combo = tb.Combobox(search_entry_frame, textvariable=property_type_var, values=["Properties for Sale", "Properties for Lease"],state="readonly", width=20)
-property_type_combo.grid(row=0, column=0, padx=5, pady=5)
-property_type_combo.current(0)  # Set default selection to "Properties for Sale"
-
-# Search Entry Box
-search_entry_var = tk.StringVar()
-search_entry = tb.Entry(search_entry_frame, textvariable=search_entry_var, bootstyle=SUCCESS, width=50)
-search_entry.grid(row=0, column=1, padx=5, pady=5)
-
-# Go Button
-search_entry_button = tb.Button(search_entry_frame, text="Go", bootstyle=(SUCCESS, OUTLINE))
-search_entry_button.grid(row=0, column=2, padx=5, pady=5)
-
-# Bind the search entry to suggest places
-search_entry.bind("<KeyRelease>", suggest_places)
-
-# Listbox for suggestions
-listbox = tk.Listbox(search_entry_frame)
-listbox.bind("<<ListboxSelect>>", entry_fill)
-
 
 
 
@@ -692,9 +722,7 @@ def edit_profile():
     
     
     
-    
-    
-# >>>>>>>>>>>>>>>> PROFILE PAGE UI <<<<<<<<<<<<<<<<
+# PROFILE PAGE UI 
 
 pfp_btn_frame = tb.Frame(profile_frame)
 pfp_btn_frame.grid(row=0, column=0, rowspan=3)
@@ -714,11 +742,9 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 
-# >>>>>>>>>>>>>>>> POST PROP FRAME FUNCTIONS <<<<<<<<<<<<<<<<
 
 
-
-# >>>>>>>>>>>>>>>> POST PROP FRAME UI <<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>> POST PROP FRAME <<<<<<<<<<<<<<<<
 def post_prop_open():
     new_frame_open(post_prop_frame)
     ##sidebar
@@ -984,13 +1010,29 @@ def my_tent_open():
     tent_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
     tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame)).grid(row=0, column=0, pady=20, padx=20)
-    tb.Separator(tent_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+    tb.Separator(tent_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 15), sticky=NS, rowspan=4)
 
-    tb.Label(my_tent_frame, text="Your Tenants", font=("Monsterrat",24)).grid(row=0,column=2,padx=100)
+    sf2 = ScrolledFrame(my_tent_frame, autohide=True, width=1050, height=550)
+    sf2.grid(row=1, column=2)
 
-
-
-
+    cursor.execute(f"select * from properties where owner_username = '{pfp_user_email}'")
+    my_prop = cursor.fetchall()
+    no_prop = cursor.rowcount
+    
+    tb.Label(my_tent_frame, text=f"You currently have {no_prop} properties", font=("Monsterrat",18)).grid(row=0,column=2, pady=20)
+    
+    for p in my_prop:
+        print(p)
+        r = my_prop.index(p) // 2
+        c = my_prop.index(p) % 2
+        
+        f = tb.Labelframe(sf2, text=f"{p[4]}, {p[3]}")
+        f.grid(row=r, column=c)
+        
+        tb.Label(f, text="Hi i do exist!").pack()
+        
+        
+        
 
 
 #>>>>>>>>>>>>>>>>>> End of Code <<<<<<<<<<<<<<<<<<<<<<
