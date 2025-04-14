@@ -55,7 +55,6 @@ CREATE TABLE `properties` (
   `address` varchar(255) DEFAULT NULL,
   `rent_price` decimal(15,2) DEFAULT NULL,
   `bhk` int DEFAULT NULL,
-  `partners` int DEFAULT NULL,
   PRIMARY KEY (`property_id`),
   KEY `owner_username` (`owner_username`),
   KEY `location_city` (`location_city`),
@@ -70,7 +69,7 @@ CREATE TABLE `properties` (
 
 LOCK TABLES `properties` WRITE;
 /*!40000 ALTER TABLE `properties` DISABLE KEYS */;
-INSERT INTO `properties` VALUES ('SRAAP0003','Deekshi@gmail.com','Apartment','Vijaywada','Palatial Heights','Palatial Heights 45, Krishna Riverside Avenue,Benz Circle, Vijayawada, Andhra Pradesh 520008',350000000.00,10,NULL),('SRIUK0001','Deekshi@gmail.com','Independent House','Dehradun','Himalayan Haveli','Cheel Ghosla Cottage, 45 Pine Ridge Road',170000000.00,10,NULL),('SRVGA0002','dio@gmail.com','Villa','Panaji','Sagarkila Villa','Sagarika Villa\n14 Fisherman\'s Wharf Road\nCalangute, Goa 403516\n',250000000.00,10,NULL);
+INSERT INTO `properties` VALUES ('LRIMH0001','dio@gmail.com','Independent House','Mumbai','Barbie Dream House','Juhu, old strret, nest corner',300000000.00,5),('LRIRJ0001','peezo@cat.in','Independent House','Jaipur','Chauth Ka Barwara','Barwara, Maharani street',600000000.00,15),('SRAAP0003','Deekshi@gmail.com','Apartment','Vijaywada','Palatial Heights','Palatial Heights 45, Krishna Riverside Avenue,Benz Circle, Vijayawada, Andhra Pradesh 520008',350000000.00,10),('SRIKA0001','dio@gmail.com','Independent House','Bangalore','Serenity Haven','BHouse, Serenity Street, Indiranagar',250000000.00,6),('SRIUK0001','Deekshi@gmail.com','Independent House','Dehradun','Himalayan Haveli','Cheel Ghosla Cottage, 45 Pine Ridge Road',170000000.00,10),('SRVGA0002','dio@gmail.com','Villa','Panaji','Sagarkila Villa','Sagarika Villa\n14 Fisherman\'s Wharf Road\nCalangute, Goa 403516\n',250000000.00,10);
 /*!40000 ALTER TABLE `properties` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,7 +91,7 @@ CREATE TABLE `res_prop_det` (
   PRIMARY KEY (`sno`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `res_prop_det_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`property_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +100,7 @@ CREATE TABLE `res_prop_det` (
 
 LOCK TABLES `res_prop_det` WRITE;
 /*!40000 ALTER TABLE `res_prop_det` DISABLE KEYS */;
-INSERT INTO `res_prop_det` VALUES (1,'SRAAP0003',7000,'Furnished',1,12,NULL),(2,'SRIUK0001',5000,'Furnished',1,20,NULL),(3,'SRVGA0002',5000,'Furnished',1,15,NULL);
+INSERT INTO `res_prop_det` VALUES (1,'SRAAP0003',7000,'Furnished',1,12,NULL),(2,'SRIUK0001',5000,'Furnished',1,20,NULL),(3,'SRVGA0002',5000,'Furnished',1,15,NULL),(13,'SRIKA0001',8000,'Semi-furnished',1,6,'Your dream isekai hot cold ceo boss ml house'),(15,'LRIMH0001',5000,'Furnished',1,8,'Barbie Pretty! From a barbara for a ken~'),(16,'LRIRJ0001',15000,'Furnished',1,300,'The Traditional Royal Raj Mahal for Exclusive Big Boss Rajasthani.');
 /*!40000 ALTER TABLE `res_prop_det` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -113,13 +112,13 @@ DROP TABLE IF EXISTS `res_prop_img`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `res_prop_img` (
-  `image_id` int NOT NULL AUTO_INCREMENT,
+  `sno` int NOT NULL AUTO_INCREMENT,
   `property_id` char(10) DEFAULT NULL,
   `image_path` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`image_id`),
+  PRIMARY KEY (`sno`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `res_prop_img_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`property_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,7 +127,7 @@ CREATE TABLE `res_prop_img` (
 
 LOCK TABLES `res_prop_img` WRITE;
 /*!40000 ALTER TABLE `res_prop_img` DISABLE KEYS */;
-INSERT INTO `res_prop_img` VALUES (1,'SRIUK0001','images/prop_res/hh_dehradun(1).png'),(2,'SRIUK0001','images/prop_res/hh_dehradun(2).png'),(3,'SRIUK0001','images/prop_res/hh_dehradun(3).png'),(4,'SRVGA0002','images/prop_res/sv_panaji(1).png'),(5,'SRVGA0002','images/prop_res/sv_panaji(2).png'),(6,'SRVGA0002','images/prop_res/sv_panaji(3).png'),(7,'SRAAP0003','images/prop_res/ph_vijaywada(1).png'),(8,'SRAAP0003','images/prop_res/ph_vijaywada(2).png'),(9,'SRAAP0003','images/prop_res/ph_vijaywada(3).png');
+INSERT INTO `res_prop_img` VALUES (1,'SRIUK0001','images/prop_res/hh_dehradun(1).png'),(2,'SRIUK0001','images/prop_res/hh_dehradun(2).png'),(3,'SRIUK0001','images/prop_res/hh_dehradun(3).png'),(4,'SRVGA0002','images/prop_res/sv_panaji(1).png'),(5,'SRVGA0002','images/prop_res/sv_panaji(2).png'),(6,'SRVGA0002','images/prop_res/sv_panaji(3).png'),(7,'SRAAP0003','images/prop_res/ph_vijaywada(1).png'),(8,'SRAAP0003','images/prop_res/ph_vijaywada(2).png'),(9,'SRAAP0003','images/prop_res/ph_vijaywada(3).png'),(26,'SRIKA0001','images\\prop_res\\sh_bangalore (1).jpg'),(27,'SRIKA0001','images\\prop_res\\sh_bangalore (2).jpg'),(28,'SRIKA0001','images\\prop_res\\sh_bangalore (3).jpg'),(32,'LRIMH0001','images\\prop_res\\bp_mumbai (1).jpeg'),(33,'LRIMH0001','images\\prop_res\\bp_mumbai (2).jpeg'),(34,'LRIMH0001','images\\prop_res\\bp_mumbai (3).jpeg'),(35,'LRIRJ0001','images\\prop_res\\mf_jaipur (1).jpeg'),(36,'LRIRJ0001','images\\prop_res\\mf_jaipur (2).jpeg'),(37,'LRIRJ0001','images\\prop_res\\mf_jaipur (3).jpeg');
 /*!40000 ALTER TABLE `res_prop_img` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -156,7 +155,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','urdum',NULL,'Owner','images\\pfp\\deekshitha_new.png'),('Dio','dio@gmail.com','dio','5676765437','Owner','images\\pfp\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/pfp/superhero.png'),('Manasvi','manasvi@gmail.com','man','7676767676','Tenant','images\\pfp\\manasvi.png'),('Peezo','peezo@cat.in','cat','4545454545','Owner','images\\pfp\\peezo.png');
+INSERT INTO `users` VALUES ('Deekshitha','Deekshi@gmail.com','urdum',NULL,'Owner','images\\pfp\\deekshitha_new.png'),('Dio','dio@gmail.com','dio','5676765437','Owner','images\\pfp\\dio.png'),('Irene','Irene@hotmail.com','blu',NULL,'Tenant','images/pfp/superhero.png'),('Manasvi','manasvi@gmail.com','man','7676767676','Tenant','images\\pfp\\manasvi.png'),('Peezo','peezo@cat.in','cat','4545454545','Owner','images\\pfp\\peezo.png'),('Selene','selene@gmail.com','sel',NULL,'Owner','images/pfp/superhero.png');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -169,4 +168,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-04 12:40:13
+-- Dump completed on 2025-04-14 21:59:49
