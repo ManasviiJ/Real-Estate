@@ -36,7 +36,7 @@ prop_detail_frame = tb.Frame(root)
 
 post_prop_frame = tb.Frame(root)
 
-
+my_tent_frame = tb.Frame(root)
 
 
 
@@ -191,6 +191,8 @@ def create_profile(the_username):                               ## prev user dat
     if role == "Owner":
         post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop_open)
         post_prop_button.grid(row=1,column=0,pady=10)
+        
+        tb.Button(sidebar, text="My\nProperties",bootstyle=SUCCESS,command=my_tent_open).grid(row=2, column=0, pady=10)
     
     else:
         for widget in sidebar.winfo_children():
@@ -450,12 +452,10 @@ listbox.bind("<<ListboxSelect>>", entry_fill)
 
 # >>>>> The PROPERTY FRAME
 
-def create_property_frame(property_data, parent_frame):
-    index = properties.index(property_data)
-    
+def create_property_frame(property_data, parent_frame, index):
      # Determine row and column based on index
-    row = index // 9  # Ensures every 3 items go to the next row
-    column = index % 9  # 3 columns per row
+    row = index // 3  # Ensures every 3 items go to the next row
+    column = index % 3  # 3 columns per row
 
     if property_data["pid"].startswith("S"):
         t = "Buy"
@@ -475,7 +475,7 @@ def create_property_frame(property_data, parent_frame):
     tb.Label(prop_frame, text=property_data["title"], font=("montserrat", 12), anchor="w").grid(row=1, column=0, padx=10, sticky="w")
     tb.Label(prop_frame, text=property_data["name"], font=("montserrat", 8), anchor="w").grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="w")
 
-    # Property details and location
+    # Property category and location
     tb.Label(prop_frame, text=property_data["cat"], font=("montserrat", 12), anchor="w").grid(row=3, column=0, padx=10, sticky="w")
     tb.Label(prop_frame, text=property_data["city"], font=("montserrat", 8), anchor="w").grid(row=4, column=0, padx=10, sticky="w")
 
@@ -484,25 +484,29 @@ def create_property_frame(property_data, parent_frame):
 
 cursor.execute("select image_path img, title, owner_username name, property_category cat, location_city city, rent_price price, i.property_id from res_prop_img i, properties p where i.property_id = p.property_id;")
 prop_list = cursor.fetchall()
-properties = []
-for prop in prop_list:
-    properties.append({
-        "img":prop[0],
-        "title":prop[1],
-        "name":prop[2],
-        "cat":prop[3],
-        "city":prop[4],
-        "price":prop[5],
-        "pid":prop[6]
-    })
-
-print("tot no. of prop:", len(properties))
-print("the prop: \n",properties)
+print(cursor.rowcount)
 
 # UI Under PROPERTY FRAME
+unique_properties = {}
+for prop in prop_list:
+    pid = prop[6]
+    if pid not in unique_properties:
+        unique_properties[pid] = {
+            "img": prop[0],
+            "title": prop[1],
+            "name": prop[2],
+            "cat": prop[3],
+            "city": prop[4],
+            "price": prop[5],
+            "pid": prop[6]
+        }
 
-for prop in properties[::3]:
-    create_property_frame(prop,sf)
+properties = list(unique_properties.values())
+
+
+for idx, prop in enumerate(properties):
+    create_property_frame(prop, sf, idx)
+
 
 def update_properties(*args):
     # Clear existing property frames in sf
@@ -510,24 +514,22 @@ def update_properties(*args):
         widget.destroy()
 
     selected_type = property_type_var.get()
+    filtered_props = []
 
-    for prop in properties[::3]:
+
+    for prop in properties:
         if selected_type == "All Properties":
-            create_property_frame(prop, sf)
+            filtered_props.append(prop)
         elif selected_type == "Properties for Sale" and prop["pid"].startswith("S"):
-            create_property_frame(prop, sf)
+            filtered_props.append(prop)
         elif selected_type == "Properties for Lease" and prop["pid"].startswith("L"):
-            create_property_frame(prop, sf)
+            filtered_props.append(prop)
+
+    for idx, prop in enumerate(filtered_props):
+        create_property_frame(prop, sf, idx)
 
 property_type_combo.bind("<<ComboboxSelected>>", update_properties)     
 
-
-
-
-
-
-
-# >>>>>>>>>>>>>>>> MAIN FRAME UI <<<<<<<<<<<<<<<<
 
 
 
@@ -838,7 +840,7 @@ def post_prop_open():
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
 
-    # Lease Duration
+    '''# Lease Duration
     tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
     lease_duration_entry = tb.Entry(Price_frame, width=40)
     lease_duration_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
@@ -846,11 +848,8 @@ def post_prop_open():
     # Extra Bills
     tb.Label(Price_frame, text="Extra Bills:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
     extra_bills_entry = tb.Entry(Price_frame, width=40)
-    extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)
-    
-    # Multiple Tenants?
-    tb.Label(sf2, text="Do you wish to make your property a co-living?").grid(column=0, row=6, padx=20, pady=20, sticky=tk.EW)
-    
+    extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)'''
+  
     def val_null():
         print("sell_lease says:", sell_lease.get())
         if sell_lease == None:
@@ -915,20 +914,9 @@ def post_prop_open():
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get()
-        p_ldur = lease_duration_entry.get()
-        p_exb = extra_bills_entry.get()
         
         
-        
-        if sell_lease.get() == "SELL":
-            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
-        
-        else:
-            if not lease_duration_entry.get():
-                messagebox.showerror("Error", "Please enter lease duration")
-                return
-            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, lease_duration, bhk) values('{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_ldur}, {p_bhk})"        
-        
+        query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
         cursor.execute(query)
         mycon.commit()
         
@@ -936,9 +924,11 @@ def post_prop_open():
             query = f"insert into res_prop_det(property_id, area_sqft, furnishing_details, parking_availability, age_of_property, description) values ('{prop_id}', {p_area}, '{p_fur}', {p_park}, {p_age}, '{p_desc}')"
             cursor.execute(query)
             mycon.commit()
-                  
-        img_in_db(fp, "{prop_id}")
-        messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
+        if len(fp) == 0:
+            messagebox.showerror("No Images Uploaded", "Please upload images of your property")
+        else:          
+            img_in_db(fp, f"{prop_id}")
+            messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
     
     
     #upload imgs
@@ -980,6 +970,7 @@ def post_prop_open():
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 def prop_det_open(pid):
+    new_frame_open(prop_detail_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
@@ -1030,10 +1021,9 @@ def my_tent_open():
     tent_btn_frame = tb.Frame(my_tent_frame, width=0, height=750)
     tent_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
 
-    tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame)).grid(row=0, column=0, pady=20, padx=20)
-    tb.Separator(tent_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 15), sticky=NS, rowspan=4)
+    tb.Button(tent_btn_frame, text="Go back", command=lambda: back_to_main_frame(my_tent_frame)).grid(row=0, column=0, pady=20, padx=10)
 
-    sf2 = ScrolledFrame(my_tent_frame, autohide=True, width=1050, height=550)
+    sf2 = ScrolledFrame(my_tent_frame, autohide=True, width=1250, height=550)
     sf2.grid(row=1, column=2)
 
     cursor.execute(f"select * from properties where owner_username = '{pfp_user_email}'")
@@ -1044,13 +1034,40 @@ def my_tent_open():
     
     for p in my_prop:
         print(p)
-        r = my_prop.index(p) // 2
-        c = my_prop.index(p) % 2
+        r = my_prop.index(p) // 3
+        c = my_prop.index(p) % 3
         
-        f = tb.Labelframe(sf2, text=f"{p[4]}, {p[3]}")
-        f.grid(row=r, column=c)
+        if p[0].startswith("L"):
+            t = "For LEASE"
+        else:
+            t = "For SALE"
         
-        tb.Label(f, text="Hi i do exist!").pack()
+        f = tb.Labelframe(sf2, text=t)
+        f.grid(row=r, column=c, padx=5, pady=10, sticky=EW)
+        
+        cursor.execute(f"select  i.property_id, image_path from res_prop_img i, properties p where i.property_id = p.property_id and p.owner_username = '{pfp_user_email}'")
+        img = cursor.fetchall()
+        
+        for i in img:
+            if p[0] == i[0]:
+                imgVar = ImageTk.PhotoImage(Image.open(i[1]).resize((350, 200)))
+                img_button = tb.Button(f, image=imgVar, bootstyle=tb.LINK)
+                img_button.image = imgVar  # Keep reference to avoid garbage collection
+                img_button.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
+                break
+        
+        # Property name and status
+        tb.Label(f, text=p[4], font=("montserrat", 12), anchor="w").grid(row=1, column=0, padx=10, sticky="w")
+        tb.Label(f, text=p[0], font=("montserrat", 8), anchor="w").grid(row=2, column=0, padx=(10, 0), pady=(0, 10), sticky="w")
+
+        # Property category and location
+        tb.Label(f, text=p[2], font=("montserrat", 12), anchor="w").grid(row=3, column=0, padx=10, sticky="w")
+        tb.Label(f, text=p[3], font=("montserrat", 8), anchor="w").grid(row=4, column=0, padx=10, sticky="w")
+
+        # Price range
+        tb.Label(f, text=p[6], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
+
+        
         
         
         
