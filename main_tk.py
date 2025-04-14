@@ -36,7 +36,7 @@ prop_detail_frame = tb.Frame(root)
 
 post_prop_frame = tb.Frame(root)
 
-my_tent_frame = tb.Frame(root)
+
 
 
 
@@ -189,22 +189,13 @@ def create_profile(the_username):                               ## prev user dat
     
     #"Post your property button for user:OWNER"
     if role == "Owner":
-        post_prop_button=tb.Button(sidebar,text="Post\nYour\nProperty",bootstyle=SUCCESS,command=post_prop_open)
+        post_prop_button=tb.Button(sidebar,text="POST\nYOUR\nPROPERTY",bootstyle=SUCCESS,command=post_prop_open)
         post_prop_button.grid(row=1,column=0,pady=10)
-        
-        my_tenants = tb.Button(sidebar, text="My\nProperties",bootstyle=SUCCESS, command=my_tent_open)
-        my_tenants.grid(row=2,column=0,pady=10)
     
     else:
         for widget in sidebar.winfo_children():
             if isinstance(widget,tb.Button) and widget.cget("text")=="POST\nYOUR\nPROPERTY":
                 widget.destroy()
-            if isinstance(widget,tb.Button) and widget.cget("text")=="My\nProperties":
-                widget.destroy()
-                
-    if role == "Tenant":
-        rent_prop = tb.Button(sidebar, text="Rented\nProperties", bootstyle=SUCCESS)
-        
 
 # Functions under the SIGN UP Button
 def show_signup_window():
@@ -911,7 +902,8 @@ def post_prop_open():
             mycon.commit()
        
     def post_prop(): 
-        global pfp_user_email       
+        global pfp_user_email
+        prop_id = prop_id_gen()
         p_cat = prop_type.get()
         p_tit = title.get()
         p_loc = loc.get()
@@ -926,8 +918,10 @@ def post_prop_open():
         p_ldur = lease_duration_entry.get()
         p_exb = extra_bills_entry.get()
         
+        
+        
         if sell_lease.get() == "SELL":
-            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('EXEXEX0001', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
+            query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
         
         else:
             if not lease_duration_entry.get():
@@ -939,11 +933,11 @@ def post_prop_open():
         mycon.commit()
         
         if p_cat in ('Apartment','Independent House','Villa'):
-            query = f"insert into res_prop_det(property_id, area_sqft, furnishing_details, parking_availability, age_of_property, description) values ('EXEXEX0001', {p_area}, '{p_fur}', {p_park}, {p_age}, '{p_desc}')"
+            query = f"insert into res_prop_det(property_id, area_sqft, furnishing_details, parking_availability, age_of_property, description) values ('{prop_id}', {p_area}, '{p_fur}', {p_park}, {p_age}, '{p_desc}')"
             cursor.execute(query)
             mycon.commit()
                   
-        img_in_db(fp, "EXEXEX0001")
+        img_in_db(fp, "{prop_id}")
         messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
     
     
@@ -955,15 +949,42 @@ def post_prop_open():
     submit_button.grid(row=8, column=0, columnspan=3, pady=30)
     
     
+    
+    def prop_id_gen():
+        sell_or_lease="S" if sell_lease.get()=="SELL" else "L"
+        
+        prop_code={"Apartment":"RA","Independent House": "RI","Villa":"RV","Commercial":"C","Land/Plot":"P"}.get(prop_type.get(),"XX")
+        
+        city_to_state={"Bangalore": "KA", "Noida": "UP","Mumbai": "MH","Vijaywada": "AP","Trivandrum": "KL","Dehradun": "UK","New Delhi": "DL","Old Delhi": "DL","Chennai": "TN", "Panaji": "GA","Hyderabad": "TS","Patna": "BR","Jaipur": "RJ","Jaisalmer": "RJ","Gurugram": "HR","Secunderabad": "TS","Pune": "MH","Ahmedabad": "GJ","Kolkata": "WB"}
 
-
+        state_code=city_to_state.get(loc.get(),"XX")
+        prefix=f"{sell_or_lease}{prop_code}{state_code}"
+        serial=1
+        while True:
+            new_id = f"{prefix}{serial:04d}"
+            
+            cursor.execute(f"SELECT 1 FROM properties WHERE property_id = '{new_id}'")
+            
+            if not cursor.fetchone():
+                return new_id
+            
+            serial+=1
+            
+            if serial>9999:
+                raise Exception("Property ID couldnt be generated after 9999 attempts")
+                
+        
+      
+    
 
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 def prop_det_open(pid):
-    new_frame_open(prop_detail_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
