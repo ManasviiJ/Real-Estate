@@ -411,10 +411,27 @@ def suggest_places(event):
     else:
         listbox.grid_forget()
 
+selected_city = None  # Add this at the top
+
 def entry_fill(event):
-    selected_place = listbox.get(listbox.curselection())
+    global selected_city
+    selection = listbox.curselection()
+    if not selection:
+        return  # No selection, do nothing
+
+    selected_place = listbox.get(selection)
     search_entry_var.set(selected_place)
+    selected_city = selected_place
     listbox.grid_forget()
+    update_properties()
+
+
+def clear_city_filter():
+    global selected_city
+    selected_city = None
+    search_entry_var.set("")
+    update_properties()
+
     
 # UI FOR SEARCH FRAME
 
@@ -434,7 +451,7 @@ search_entry = tb.Entry(search_entry_frame, textvariable=search_entry_var, boots
 search_entry.grid(row=0, column=1, padx=5, pady=5)
 
 # Go Button
-search_entry_button = tb.Button(search_entry_frame, text="Go", bootstyle=(SUCCESS, OUTLINE))
+search_entry_button = tb.Button(search_entry_frame, text="Clear", command=clear_city_filter, bootstyle=(SUCCESS, OUTLINE))
 search_entry_button.grid(row=0, column=2, padx=5, pady=5)
 
 # Bind the search entry to suggest places
@@ -509,20 +526,24 @@ for idx, prop in enumerate(properties):
 
 
 def update_properties(*args):
-    # Clear existing property frames in sf
     for widget in sf.winfo_children():
         widget.destroy()
 
     selected_type = property_type_var.get()
     filtered_props = []
 
-
     for prop in properties:
-        if selected_type == "All Properties":
-            filtered_props.append(prop)
-        elif selected_type == "Properties for Sale" and prop["pid"].startswith("S"):
-            filtered_props.append(prop)
-        elif selected_type == "Properties for Lease" and prop["pid"].startswith("L"):
+        type_match = (
+            selected_type == "All Properties" or
+            (selected_type == "Properties for Sale" and prop["pid"].startswith("S")) or
+            (selected_type == "Properties for Lease" and prop["pid"].startswith("L"))
+        )
+
+        city_match = (
+            selected_city is None or selected_city.lower() == prop["city"].lower()
+        )
+
+        if type_match and city_match:
             filtered_props.append(prop)
 
     for idx, prop in enumerate(filtered_props):
