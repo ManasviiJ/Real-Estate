@@ -16,7 +16,7 @@ root.geometry('1600x1400')
 root.title("Real Estate Management")
 
 # Connecting MySQL to Python Interface
-mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
+mycon = mys.connect(host="localhost", user="root", passwd="cajc", database="re_estate")
 cursor = mycon.cursor()
 
 
@@ -163,7 +163,7 @@ def create_profile(the_username):                               ## prev user dat
         profile_btn.image = profile_img  # Keep reference
         profile_btn.grid(row=0, column=0, sticky=EW, pady=10)
 
-    profile_btn = tb.Button(sidebar, image=profile_img, bootstyle=tb.LINK, command=lambda: new_frame_open(profile_frame))
+    profile_btn = tb.Button(sidebar, image=profile_img, bootstyle=tb.LINK, command=lambda: new_frame_open(profile_frame, main_frame))
     profile_btn.grid(row=0,column=0,sticky=EW, pady=10,)
 
         
@@ -198,6 +198,10 @@ def create_profile(the_username):                               ## prev user dat
         for widget in sidebar.winfo_children():
             if isinstance(widget,tb.Button) and widget.cget("text")=="POST\nYOUR\nPROPERTY":
                 widget.destroy()
+    
+    if role == "Tenant":
+        tb.Button(sidebar, text="My\nProperties", bootstyle=SUCCESS).grid(row=2, column=0, pady=10)
+                
 
 # Functions under the SIGN UP Button
 def show_signup_window():
@@ -989,8 +993,17 @@ def post_prop_open():
     
 
 
+
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
+
 def prop_det_open(pid):
+    # 1. Verify property exists first
+    cursor.execute("SELECT 1 FROM properties WHERE property_id = %s", (pid,))
+    if not cursor.fetchone():
+        messagebox.showerror("Error", f"Property ID {pid} doesn't exist!")
+        return
+
+    # 2. Only proceed if valid
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
@@ -998,44 +1011,132 @@ def prop_det_open(pid):
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
-    tb.Label(pdet_btn_frame, text="Property Title:", font=("Montserrat", 12)).grid(column=2, row=0, sticky="nsew", columnspan=2, padx=20, pady=10)
-    tb.Label(pdet_btn_frame, text="property Id", font=("Montserrat", 12)).grid(column=2, row=1, sticky="nsew", columnspan=2, padx=20, pady=10)
-    tb.Label(pdet_btn_frame, text="status", font=("Montserrat", 12)).grid(column=2, row=2, sticky="nsew", columnspan=2, padx=20, pady=10)
+    query = """
+    SELECT
+        properties.property_id,
+        properties.owner_username,
+        properties.property_category,
+        properties.location_city,
+        properties.title,
+        properties.address,
+        properties.rent_price,
+        properties.bhk,
+        res_prop_det.sno AS detail_sno,
+        res_prop_det.area_sqft,
+        res_prop_det.furnishing_details,
+        res_prop_det.parking_availability,
+        res_prop_det.age_of_property,
+        res_prop_det.description,
+        res_prop_img.sno,
+        res_prop_img.image_path
+    FROM properties
+    LEFT JOIN res_prop_det ON properties.property_id = res_prop_det.property_id
+    LEFT JOIN res_prop_img ON properties.property_id = res_prop_img.property_id
+    WHERE properties.property_id = %s;
+    """
+
+    cursor.execute(query, (pid,))
+    result = cursor.fetchall()
+    
+    print("DEBUG QUERY RESULT:")
+    print("Number of rows:", len(result))
+    print("Actual content:", result)
+
+    if result:
+        first_row = result[0]
+        (
+            property_id, owner_username, property_category, location_city, title,
+            address, rent_price, bhk, detail_sno, area_sqft, furnishing_details,
+            parking_availability, age_of_property, description, image_sno, image_path
+        ) = first_row
+
+        # Collect all images
+        images = [row[-1] for row in result if row[-1]]
+    else:
+        # Fallback if somehow no rows returned
+        (
+            property_id, owner_username, property_category, location_city, title,
+            address, rent_price, bhk, detail_sno, area_sqft, furnishing_details,
+            parking_availability, age_of_property, description, image_sno, image_path
+        ) = ("N/A", "Unknown", "Unknown", "Unknown", "No Title", 
+             "No Address", 0, 0, 0, 0, "N/A", "No", 0, "No description", 0, "default.jpg")
+
+        images = ["default.jpg"]
+
+    cursor.execute(f"select * from properties where property_id = '{pid}'")
+    (property_id, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
+    cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
+    (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
+    cursor.execute(f"select * from loc where city = '{location_city}'")
+    (state, _) = cursor.fetchone()
+
+    # ----------------- DISPLAY START ----------------- #
+
+    tb.Label(pdet_btn_frame, text=title, font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+    tb.Label(pdet_btn_frame, text=f"{location_city}, {state}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
+    tb.Label(pdet_btn_frame, text=pid , font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
 
     sf3 = ScrolledFrame(pdet_btn_frame, autohide=True, width=1050, height=550)
     sf3.grid(row=3, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
-    tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Address:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Propert Category:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="bhk:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Are sqft:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Parking availabilty:", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=1, row=0, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=f"{address}, {location_city}, {state}", font=("Montserrat", 12)).grid(column=2, row=0, sticky="nsew", padx=20, pady=10)
 
-    desc_frame = tb.LabelFrame(sf3, text="Description", padding=(10, 5))
-    desc_frame.grid(row=9, column=0, padx=10, pady=10, rowspan=2, sticky=tk.W)
+    tb.Label(sf3, text="Property Category:", font=("Montserrat", 12)).grid(column=1, row=1, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=property_category, font=("Montserrat", 12)).grid(column=2, row=1, sticky="nsew", padx=20, pady=10)
 
-    sf4 = ScrolledFrame(desc_frame, autohide=True, width=1050, height=550)
-    sf4.grid(row=0, column=0, columnspan=3, padx=20, pady=20, sticky=W)
+    tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=1, row=2, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=f"₹{rent_price}", font=("Montserrat", 12)).grid(column=2, row=2, sticky="nsew", padx=20, pady=10)
 
-    imgs_frame = tb.LabelFrame(sf3, text="Images", padding=(10, 5))
-    imgs_frame.grid(row=10, column=0, padx=10, pady=10, sticky=tk.W, rowspan=3)
+    tb.Label(sf3, text="BHK:", font=("Montserrat", 12)).grid(column=1, row=3, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=bhk, font=("Montserrat", 12)).grid(column=2, row=3, sticky="nsew", padx=20, pady=10)
 
-    own_dets_frame = tb.LabelFrame(sf3, text="Owner Details", padding=(10, 5))
-    own_dets_frame.grid(row=11, column=0, padx=10, pady=10, sticky=tk.W)
+    tb.Label(sf3, text="Area sqft:", font=("Montserrat", 12)).grid(column=1, row=4, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=f"{area_sqft} sq.ft", font=("Montserrat", 12)).grid(column=2, row=4, sticky="nsew", padx=20, pady=10)
 
-    cnt_own_frame = tb.Frame(sf3, width=100, height=50)
-    cnt_own_frame.grid(row=10, column=1, padx=10, pady=10, sticky=tk.W)
+    tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=1, row=5, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=furnishing_details, font=("Montserrat", 12)).grid(column=2, row=5, sticky="nsew", padx=20, pady=10)
+
+    tb.Label(sf3, text="Parking availability:", font=("Montserrat", 12)).grid(column=1, row=6, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=parking_availability, font=("Montserrat", 12)).grid(column=2, row=6, sticky="nsew", padx=20, pady=10)
+
+    tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=1, row=7, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=f"{age_of_property} years", font=("Montserrat", 12)).grid(column=2, row=7, sticky="nsew", padx=20, pady=10)
+
+    tb.Label(sf3, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky=tk.W, padx=20, pady=10)
+    tb.Label(sf3, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
+
+    cursor.execute(f"select * from res_prop_img where property_id = '{pid}'")
+    imgs = cursor.fetchall()
+        
+    for idx, i in enumerate(imgs):
+        imgVar = ImageTk.PhotoImage(Image.open(i[2]).resize((300, 150)))
+        img_label = tb.Label(sf3, image=imgVar)
+        img_label.image = imgVar
+        img_label.grid(row=idx, column=0, sticky=E, padx=10, pady=10)
 
 
-# >>>>>>>>>>>>>>>> MY TENANTS PAGE <<<<<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>> MY PROPERTIES PAGE <<<<<<<<<<<<<<<<<<<
 
 def my_tent_open():
     def see_prop(pid):
         print("see_prop called!")  # Add this to confirm the function is even running
+
+        def delete_prop():
+            if messagebox.askyesno("Confirm", "Are you sure you want to remove this property? You will not be able to recover your property again."):
+                messagebox.showwarning("Success", "Your property has been removed")
+                
+                cursor.execute(f"DELETE FROM RES_PROP_DET WHERE PROPERTY_ID = '{pid}'")
+                cursor.execute(f"DELETE FROM RES_PROP_IMG WHERE PROPERTY_ID = '{pid}'")
+                cursor.execute(f"DELETE FROM PROPERTIES WHERE PROPERTY_ID = '{pid}'")
+                mycon.commit()
+                back_to_main_frame(f1, my_tent_frame)
+                f1.destroy()
+                
+                
+            else:
+                messagebox.showwarning("Failed", "Your property has not been removed.")
+
 
         f1 = tb.Frame(root)
         new_frame_open(f1, my_tent_frame)
@@ -1045,35 +1146,70 @@ def my_tent_open():
 
         tb.Button(f1_btn_frame, text="Go back", command=lambda: back_to_main_frame(f1, my_tent_frame)).grid(row=0, column=0, pady=10, padx=10)
         tb.Button(f1_btn_frame, text="Edit\nProperty", bootstyle=(INFO, OUTLINE)).grid(row=1, column=0, pady=10, padx=10)
-        tb.Button(f1_btn_frame, text="Delete\nProperty", bootstyle=(DANGER,OUTLINE)).grid(row=2, column=0, pady=10, padx=10)        
+        tb.Button(f1_btn_frame, text="Delete\nProperty", bootstyle=(DANGER,OUTLINE), command= delete_prop).grid(row=2, column=0, pady=10, padx=10)        
 
         tb.Separator(f1, orient=VERTICAL).grid(column=10, row=0, rowspan=20, sticky=NS)
         f1_user_frame = tb.Frame(f1, width=200, height=600)
         f1_user_frame.grid(row=0, column=11, rowspan=20, sticky=NS)
         
         tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat",12)).grid(row=0,column=0,pady=10)
-        
-        cursor.execute(f"select * from properties where property_id = '{pid}'")
-        binfo = cursor.fetchone()
-        print("this is binfo", binfo)
-        cursor.execute(f"select state from loc where city = '{binfo[3]}'")
-        state = cursor.fetchone()
-        
-        tb.Label(f1, text=f"{binfo[4]}", font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
-        tb.Label(f1, text=f"{binfo[3]}, {state[0]}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
-        tb.Label(f1, text=f"{binfo[0]}", font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
 
-        sf5 = ScrolledFrame(f1, width=900, height=575)
-        sf5.grid(row=3, column=1, sticky=EW)
+        cursor.execute(f"select * from properties where property_id = '{pid}'")
+        (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
+        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
+        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
+        cursor.execute(f"select * from loc where city = '{location_city}'")
+        (state, _) = cursor.fetchone()
+        
+        tb.Label(f1, text=title, font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+        tb.Label(f1, text=f"{location_city}, {state}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
+        tb.Label(f1, text=pid , font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+
+        sf3 = ScrolledFrame(f1, width=900, height=575)
+        sf3.grid(row=3, column=1, sticky=EW)
         
         cursor.execute(f"select * from res_prop_img where property_id = '{pid}'")
         imgs = cursor.fetchall()
         
         for idx, i in enumerate(imgs):
             imgVar = ImageTk.PhotoImage(Image.open(i[2]).resize((300, 150)))
-            img_label = tb.Label(sf5, image=imgVar)
+            img_label = tb.Label(sf3, image=imgVar)
             img_label.image = imgVar
             img_label.grid(row=idx, column=0, sticky=E, padx=10, pady=10)
+
+        cursor.execute(f"select * from properties where property_id = '{pid}'")
+        (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
+        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
+        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
+        cursor.execute(f"select * from loc where city = '{location_city}'")
+        (state, _) = cursor.fetchone()
+
+        tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=f"{address}, {location_city}, {state}", font=("Montserrat", 12)).grid(column=1, row=0, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Property Category:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=property_category, font=("Montserrat", 12)).grid(column=1, row=2, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=f"₹{rent_price}", font=("Montserrat", 12)).grid(column=1, row=3, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="BHK:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=bhk, font=("Montserrat", 12)).grid(column=1, row=4, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Area sqft:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=f"{area_sqft} sq.ft", font=("Montserrat", 12)).grid(column=1, row=5, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=furnishing_details, font=("Montserrat", 12)).grid(column=1, row=6, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Parking availability:", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=parking_availability, font=("Montserrat", 12)).grid(column=1, row=7, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=f"{age_of_property} years", font=("Montserrat", 12)).grid(column=1, row=8, sticky="nsew", padx=20, pady=10)
+
+        tb.Label(sf3, text="Description:", font=("Montserrat", 12)).grid(column=0, row=9, sticky=tk.W, padx=20, pady=10)
+        tb.Label(sf3, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=1, row=9, sticky="w", padx=20, pady=10)
 
     
     new_frame_open(my_tent_frame, main_frame)
