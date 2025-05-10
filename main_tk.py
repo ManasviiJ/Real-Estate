@@ -16,7 +16,7 @@ root.geometry('1600x1400')
 root.title("Real Estate Management")
 
 # Connecting MySQL to Python Interface
-mycon = mys.connect(host="localhost", user="root", passwd="cajc", database="re_estate")
+mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
 cursor = mycon.cursor()
 
 
