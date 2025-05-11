@@ -201,7 +201,7 @@ def create_profile(the_username):                               ## prev user dat
                 widget.destroy()
     
     if role == "Tenant":
-        tb.Button(sidebar, text="My\nProperties", bootstyle=SUCCESS).grid(row=2, column=0, pady=10)
+        tb.Button(sidebar, text="Look For\nProperties", bootstyle=SUCCESS, command= tenant_dashboard_open).grid(row=2, column=0, pady=10)
                 
 
 # Functions under the SIGN UP Button
@@ -1876,7 +1876,7 @@ def tenant_dashboard_open():
             btn_frame.pack(side=RIGHT, padx=10)
 
             view_btn = tb.Button(btn_frame, text="View Details",
-                               command=lambda pid=pid: prop_det_open(pid))
+                               command=lambda pid=pid: prop_det_open(pid, tenant_frame))
             view_btn.pack(pady=2, fill=X)
 
     # Initialize with all properties
