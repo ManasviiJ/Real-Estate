@@ -786,14 +786,11 @@ def post_prop_open():
     lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
     lease.grid(row=0, column=2, padx=10, pady=5)
 
-
     # PROPERTY TYPE
     tb.Label(sf2, text="PROPERTY TYPE:", font=("Montserrat", 14, "bold")).grid(row=1, column=0, pady=15, sticky=tk.W)
     prop_type_list = ['Apartment','Independent House','Villa','Commercial','Land/Plot']
     prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list, width=25)
     prop_type.grid(row=1, column=1, columnspan=2, padx=10, pady=5, sticky=tk.W)
-
-
 
     # PROPERTY DETAILS FRAME
     Prop_dets_frame = tb.LabelFrame(sf2, text="PROPERTY DETAILS", bootstyle="info")
@@ -851,7 +848,6 @@ def post_prop_open():
     # UPLOADING MEDIA
     style = tb.Style()
     style.configure("Warning.Link.TButton", font=("Montserrat", 12), foreground="#FFC107")
-
 
     sf3 = ScrolledFrame(sf2, autohide=True, height=300, width=900)
     sf3.grid(row=4, column=0, columnspan=5, padx=20, pady=20, sticky=W)
@@ -965,8 +961,6 @@ def post_prop_open():
     ## SUBMIT
     submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20, command=val_null)
     submit_button.grid(row=8, column=0, columnspan=3, pady=30)
-    
-    
     
     def prop_id_gen():
         sell_or_lease="S" if sell_lease.get()=="SELL" else "L"
@@ -1112,7 +1106,6 @@ def prop_det_open(pid):
 
 def my_tent_open():
     def see_prop(pid):
-        print("see_prop called!")
 
         def delete_prop():
             if messagebox.askyesno("Confirm", "Are you sure you want to remove this property? You will not be able to recover your property again."):
@@ -1125,6 +1118,174 @@ def my_tent_open():
                 f1.destroy()
             else:
                 messagebox.showwarning("Failed", "Your property has not been removed.")
+                
+        def edit_prop():
+            eframe = tb.Frame(root)
+            eframe.pack(fill=BOTH, expand=TRUE)
+            ebtn_frame = tb.Frame(eframe, width=0, height=750)
+            ebtn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+            tb.Button(ebtn_frame, text="Cancel", command=lambda: back_to_main_frame(eframe, f1)).grid(row=0, column=0, pady=20, padx=20)
+            tb.Separator(eframe, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+
+            tb.Label(eframe, text="EDIT YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
+
+            sf2 = ScrolledFrame(eframe, autohide=True, width=1050, height=550)
+            sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
+
+            cursor.execute(f"select * from properties where property_id = '{pid}'")
+            (_, _, pcat, eloc, etit, ead, erp, ebhk) = cursor.fetchone()
+            cursor.execute(f"select * from res_prop_Det where property_id = '{pid}'")
+            (_, _, ear, efur, epar, eage, edesc) = cursor.fetchone()
+           
+            if "S" in pid:
+                sell_lease = "SELL"
+            else:
+                sell_lease = "LEASE"
+
+            # SELL OR LEASE
+            tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
+            sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info")
+            sell.grid(row=0, column=1, padx=10, pady=5)
+            lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
+            lease.grid(row=0, column=2, padx=10, pady=5)
+
+            # PROPERTY TYPE
+            tb.Label(sf2, text="PROPERTY TYPE:", font=("Montserrat", 14, "bold")).grid(row=1, column=0, pady=15, sticky=tk.W)
+            prop_type_list = ['Apartment','Independent House','Villa','Commercial','Land/Plot']
+            prop_type = tb.Combobox(sf2, bootstyle="primary", values=prop_type_list, width=25)
+            prop_type.grid(row=1, column=1, columnspan=2, padx=10, pady=5, sticky=tk.W)
+            prop_type.set(pcat)
+
+            # PROPERTY DETAILS FRAME
+            Prop_dets_frame = tb.LabelFrame(sf2, text="PROPERTY DETAILS", bootstyle="info")
+            Prop_dets_frame.grid(row=2, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
+
+            # Title
+            tb.Label(Prop_dets_frame, text="Title:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+            title = tb.Entry(Prop_dets_frame, width=40)
+            title.grid(row=0, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            title.set(etit)
+
+            # Location
+            tb.Label(Prop_dets_frame, text="Location:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+            loc = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=search_options, width=40)  # Replace with actual options
+            loc.grid(row=1, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            loc.set(eloc)
+
+            # Address
+            tb.Label(Prop_dets_frame, text="Address:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
+            address = tb.Entry(Prop_dets_frame, width=40)
+            address.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            address.set(ead)
+
+            # Number of rooms
+            tb.Label(Prop_dets_frame, text="No of rooms (BHK):", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
+            bhk = tb.Entry(Prop_dets_frame, width=40)
+            bhk.grid(row=3, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            bhk.set(ebhk)
+
+            # Area sqft
+            tb.Label(Prop_dets_frame, text="Area sqft:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
+            area = tb.Entry(Prop_dets_frame, width=40)
+            area.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            area.set(ear)
+
+            # Furnishing details
+            tb.Label(Prop_dets_frame, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
+            fur_list = ["Unfurnished", "Semi-furnished", "Furnished"]
+            fur = tb.Combobox(Prop_dets_frame, bootstyle="primary", values=fur_list, width=40)
+            fur.grid(row=5, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            fur.set(efur)
+
+            # Parking Availability
+            tb.Label(Prop_dets_frame, text="Parking Availability", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
+            if epar:
+                park = True
+            else:
+                park = False
+            Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=1, bootstyle="info")
+            Yes.grid(row=6, column=1, padx=10, pady=10)
+            No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=0, bootstyle="info")
+            No.grid(row=6, column=2, padx=10, pady=10)
+
+            # Age of Property
+            tb.Label(Prop_dets_frame, text="Age of Property", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
+            age = tb.Entry(Prop_dets_frame, width=40)
+            age.grid(row=7, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            age.set(eage)
+
+            # Description
+            tb.Label(Prop_dets_frame, text="Description", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
+            desc = tb.Entry(Prop_dets_frame, width=40)
+            desc.grid(row=8, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
+            desc.set(edesc)
+
+            # UPLOADING MEDIA
+            style = tb.Style()
+            style.configure("Warning.Link.TButton", font=("Montserrat", 12), foreground="#FFC107")
+
+            sf3 = ScrolledFrame(sf2, autohide=True, height=300, width=900)
+            sf3.grid(row=4, column=0, columnspan=5, padx=20, pady=20, sticky=W)
+
+            # PRICING DETAILS FRAME
+            Price_frame = tb.LabelFrame(sf2, text="PRICING DETAILS", bootstyle="info")
+            Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
+
+            # Price/Rent
+            price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+            price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
+            price_entry = tb.Entry(Price_frame, width=40)
+            price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
+            price_entry.set(erp)
+        
+            def upload_images():
+                file_paths = filedialog.askopenfilenames(title="Select Images", 
+                                                        filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif;*.bmp")])
+                if file_paths:
+                    for widget in sf3.winfo_children():
+                        widget.destroy()  # Clear previous images
+                    print(file_paths)   # tuple of strings of absolute path
+                    images.clear()
+                    fp.clear()
+                    
+                    for path in file_paths:
+                        img = Image.open(path)
+                        img.thumbnail((300, 300))  # Resize for display
+                        img_tk = ImageTk.PhotoImage(img)
+                        images.append(img_tk)  # Store reference to prevent garbage collection
+                        fp.append(path)
+                        
+                        index = file_paths.index(path)
+                        row = index // 3
+                        column = index % 3
+                        
+                        label = tk.Label(sf3, image=img_tk)
+                        label.grid(row=row, column=column, padx=5, pady=5)
+            images =[]
+            fp = []    
+            
+            def img_in_db(fpp, pid):
+                for p in fpp:
+                    ip = os.path.relpath(p)
+                    ip = os.path.normpath(ip)
+                    ip = ip.replace("\\", "\\\\")
+
+                    query = f"insert into res_prop_img(property_id,image_path) values ('{pid}','{ip}')"
+                    cursor.execute(query)
+                    mycon.commit()
+                               
+            #upload imgs
+            ub = tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton", command=upload_images)
+            ub.grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
+            ToolTip(ub, text="Upload atleast 3 pictures of you property for the user to see. It is recommended to upload the image you want to be as the cover first.", bootstyle=(WARNING, INVERSE))
+            
+            ## SUBMIT
+            submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
+            submit_button.grid(row=8, column=0, columnspan=3, pady=30)
+                
+            
+            
+            
 
         f1 = tb.Frame(root)
         new_frame_open(f1, my_tent_frame)
@@ -1267,7 +1428,463 @@ def my_tent_open():
         tb.Label(f, text=p[6], font=("montserrat", 12), anchor="e").grid(row=1, column=1, padx=(0, 10), sticky="e")
 
 
-        
+
+
+
+
+
+
+
+# >>>>>>>>>>>>>>>> TENANT DASHBOARD FRAME <<<<<<<<<<<<<<<<
+
+def tenant_dashboard_open():
+    # Create tenant dashboard frame
+    tenant_frame = tb.Frame(root)
+   
+    # Create tables for tenant-specific data if they don't exist
+    try:
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tenant_favorites (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_username VARCHAR(60),
+            property_id CHAR(10),
+            FOREIGN KEY (tenant_username) REFERENCES users(username),
+            FOREIGN KEY (property_id) REFERENCES properties(property_id),
+            UNIQUE KEY unique_favorite (tenant_username, property_id)
+        )
+        """)
+       
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tenant_properties (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_username VARCHAR(60),
+            property_id CHAR(10),
+            transaction_type ENUM('rented', 'bought'),
+            transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (tenant_username) REFERENCES users(username),
+            FOREIGN KEY (property_id) REFERENCES properties(property_id)
+        )
+        """)
+        mycon.commit()
+    except mys.Error as err:
+        print(f"Error creating tenant tables: {err}")
+
+    # Back button
+    back_frame = tb.Frame(tenant_frame)
+    back_frame.pack(side=LEFT, fill=Y, padx=10, pady=10)
+    tb.Button(back_frame, text="Go Back",
+              command=lambda: back_to_main_frame(tenant_frame, main_frame)).pack(pady=10)
+
+    # Filter frame
+    filter_frame = tb.LabelFrame(tenant_frame, text="Filters", bootstyle=INFO)
+    filter_frame.pack(side=LEFT, fill=Y, padx=10, pady=10)
+
+    # Price range filter
+    tb.Label(filter_frame, text="Price Range:").pack(pady=5)
+    price_ranges = [
+        "All Prices",
+        "Under ₹50,000",
+        "₹50,000 - ₹1,00,000",
+        "₹1,00,000 - ₹5,00,000",
+        "₹5,00,000 - ₹10,00,000",
+        "Above ₹10,00,000"
+    ]
+    price_combo = tb.Combobox(filter_frame, values=price_ranges, state="readonly")
+    price_combo.pack(pady=5)
+    price_combo.current(0)
+
+    # Property type filter
+    tb.Label(filter_frame, text="Property Type:").pack(pady=5)
+    prop_types = ["All Types", "Apartment", "Independent House", "Villa", "Commercial", "Land/Plot"]
+    type_combo = tb.Combobox(filter_frame, values=prop_types, state="readonly")
+    type_combo.pack(pady=5)
+    type_combo.current(0)
+
+    # Location filter
+    tb.Label(filter_frame, text="Location:").pack(pady=5)
+    cursor.execute("SELECT DISTINCT city FROM loc")
+    locations = ["All Locations"] + [loc[0] for loc in cursor.fetchall()]
+    loc_combo = tb.Combobox(filter_frame, values=locations, state="readonly")
+    loc_combo.pack(pady=5)
+    loc_combo.current(0)
+
+    # Apply filters button
+    apply_btn = tb.Button(filter_frame, text="Apply Filters", bootstyle=SUCCESS,
+                         command=lambda: update_tenant_properties())
+    apply_btn.pack(pady=10)
+
+    # Main content frame
+    content_frame = tb.Frame(tenant_frame)
+    content_frame.pack(side=RIGHT, fill=BOTH, expand=True, padx=10, pady=10)
+
+    # Property display frame
+    prop_display = ScrolledFrame(content_frame, autohide=True, width=1000, height=700)
+    prop_display.pack(fill=BOTH, expand=True)
+
+    # Favorites and My Properties buttons
+    btn_frame = tb.Frame(content_frame)
+    btn_frame.pack(fill=X, pady=10)
+   
+    favorites_btn = tb.Button(btn_frame, text="My Favorites", bootstyle=INFO,
+                             command=lambda: show_favorites())
+    favorites_btn.pack(side=LEFT, padx=5)
+   
+    my_props_btn = tb.Button(btn_frame, text="My Properties", bootstyle=INFO,
+                            command=lambda: show_my_properties())
+    my_props_btn.pack(side=LEFT, padx=5)
+
+    # Function to update property display based on filters
+    def update_tenant_properties():
+        # Clear previous properties
+        for widget in prop_display.winfo_children():
+            widget.destroy()
+
+        # Get filter values
+        price_filter = price_combo.get()
+        type_filter = type_combo.get()
+        loc_filter = loc_combo.get()
+
+        # Build SQL query based on filters
+        query = """
+    SELECT
+        p.property_id,
+        p.title,
+        p.owner_username,
+        p.location_city,
+        p.rent_price,
+        p.property_category,
+        p.bhk,
+        MAX(r.image_path) as image_path,
+        rp.furnishing_details,
+        rp.area_sqft
+    FROM properties p
+    LEFT JOIN res_prop_img r ON p.property_id = r.property_id
+    LEFT JOIN res_prop_det rp ON p.property_id = rp.property_id
+    WHERE 1=1
+    """
+
+        # Apply filters
+        if type_filter != "All Types":
+            query += f" AND p.property_category = '{type_filter}'"
+        if loc_filter != "All Locations":
+            query += f" AND p.location_city = '{loc_filter}'"
+
+        # Apply price filter
+        if price_filter == "Under ₹50,000":
+            query += " AND p.rent_price < 50000"
+        elif price_filter == "₹50,000 - ₹1,00,000":
+            query += " AND p.rent_price BETWEEN 50000 AND 100000"
+        elif price_filter == "₹1,00,000 - ₹5,00,000":
+            query += " AND p.rent_price BETWEEN 100000 AND 500000"
+        elif price_filter == "₹5,00,000 - ₹10,00,000":
+            query += " AND p.rent_price BETWEEN 500000 AND 1000000"
+        elif price_filter == "Above ₹10,00,000":
+            query += " AND p.rent_price > 1000000"
+
+        query += """
+    GROUP BY
+        p.property_id,
+        p.title,
+        p.owner_username,
+        p.location_city,
+        p.rent_price,
+        p.property_category,
+        p.bhk,
+        rp.furnishing_details,
+        rp.area_sqft
+    """
+
+        cursor.execute(query)
+        properties = cursor.fetchall()
+
+        # Display properties
+        for idx, prop in enumerate(properties):
+            (pid, title, owner, city, price, ptype, bhk, img_path, furnishing, area) = prop
+           
+            # Create property frame
+            prop_frame = tb.Frame(prop_display, borderwidth=1, relief="solid", padding=10)
+            prop_frame.pack(fill=X, pady=5, padx=5)
+
+            # Load property image
+            try:
+                img = Image.open(img_path).resize((150, 100))
+                img_tk = ImageTk.PhotoImage(img)
+                img_label = tb.Label(prop_frame, image=img_tk)
+                img_label.image = img_tk  # Keep reference
+                img_label.pack(side=LEFT, padx=10)
+            except:
+                # Use placeholder if image fails to load
+                img_label = tb.Label(prop_frame, text="No Image", width=15, height=6)
+                img_label.pack(side=LEFT, padx=10)
+
+            # Property details
+            details_frame = tb.Frame(prop_frame)
+            details_frame.pack(side=LEFT, fill=BOTH, expand=True)
+
+            tb.Label(details_frame, text=title, font=("Arial", 12, "bold")).grid(row=0, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Owner: {owner}").grid(row=1, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Location: {city}").grid(row=2, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Type: {ptype} | BHK: {bhk}").grid(row=3, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Price: ₹{price:,.2f}", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky=W)
+
+            # Action buttons
+            btn_frame = tb.Frame(prop_frame)
+            btn_frame.pack(side=RIGHT, padx=10)
+
+            # Check if property is already favorited
+            cursor.execute("SELECT 1 FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
+                          (pfp_user_email, pid))
+            is_favorited = cursor.fetchone() is not None
+
+            fav_btn = tb.Button(btn_frame, text="★ Favorite" if not is_favorited else "❤ Favorited",
+                              bootstyle=SUCCESS if not is_favorited else DANGER,
+                              command=lambda pid=pid: toggle_favorite(pid))
+            fav_btn.pack(pady=2, fill=X)
+
+            view_btn = tb.Button(btn_frame, text="View Details",
+                               command=lambda pid=pid: prop_det_open(pid))
+            view_btn.pack(pady=2, fill=X)
+
+            rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
+                                   bootstyle=INFO,
+                                   command=lambda pid=pid: rent_buy_property(pid))
+            rent_buy_btn.pack(pady=2, fill=X)
+
+    # Function to toggle favorite status
+    def toggle_favorite(property_id):
+        cursor.execute("SELECT 1 FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
+                      (pfp_user_email, property_id))
+       
+        if cursor.fetchone():
+            # Remove from favorites
+            cursor.execute("DELETE FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
+                          (pfp_user_email, property_id))
+            messagebox.showinfo("Success", "Property removed from favorites")
+        else:
+            # Add to favorites
+            cursor.execute("INSERT INTO tenant_favorites (tenant_username, property_id) VALUES (%s, %s)",
+                          (pfp_user_email, property_id))
+            messagebox.showinfo("Success", "Property added to favorites")
+       
+        mycon.commit()
+        update_tenant_properties()
+
+    # Function to handle rent/buy action
+    def rent_buy_property(property_id):
+        # Check if property is already rented/bought
+        cursor.execute("""
+        SELECT 1 FROM tenant_properties
+        WHERE tenant_username = %s AND property_id = %s
+        """, (pfp_user_email, property_id))
+       
+        if cursor.fetchone():
+            messagebox.showinfo("Info", "You've already rented/bought this property")
+            return
+
+        # Ask for transaction type
+        transaction = messagebox.askquestion("Transaction",
+                                           "Do you want to RENT this property? (No for Buy)")
+       
+        transaction_type = "rented" if transaction == "yes" else "bought"
+       
+        # Record transaction
+        cursor.execute("""
+        INSERT INTO tenant_properties (tenant_username, property_id, transaction_type)
+        VALUES (%s, %s, %s)
+        """, (pfp_user_email, property_id, transaction_type))
+       
+        mycon.commit()
+        messagebox.showinfo("Success", f"Property {transaction_type} successfully!")
+        update_tenant_properties()
+
+    # Function to show favorite properties
+    def show_favorites():
+         for widget in prop_display.winfo_children():
+             widget.destroy()
+
+         try:
+             
+             
+        # Get favorite properties with proper GROUP BY handling
+             query = """
+        SELECT
+            p.property_id,
+            p.title,
+            p.owner_username,
+            p.location_city,
+            p.rent_price,
+            p.property_category,
+            p.bhk,
+            MAX(r.image_path) as image_path,  -- Use aggregate for image
+            rp.furnishing_details,
+            rp.area_sqft
+        FROM properties p
+        JOIN tenant_favorites tf ON p.property_id = tf.property_id
+        LEFT JOIN res_prop_img r ON p.property_id = r.property_id
+        LEFT JOIN res_prop_det rp ON p.property_id = rp.property_id
+        WHERE tf.tenant_username = %s
+        GROUP BY
+            p.property_id,
+            p.title,
+            p.owner_username,
+            p.location_city,
+            p.rent_price,
+            p.property_category,
+            p.bhk,
+            rp.furnishing_details,
+            rp.area_sqft
+        """
+       
+             cursor.execute(query, (pfp_user_email,))
+             favorites = cursor.fetchall()
+
+             if not favorites:
+                 tb.Label(prop_display, text="You haven't favorited any properties yet").pack(pady=50)
+                 return
+
+        # Display favorite properties
+             for idx, prop in enumerate(favorites):
+                 (pid, title, owner, city, price, ptype, bhk, img_path, furnishing, area) = prop
+           
+            # Create property frame
+             prop_frame = tb.Frame(prop_display, borderwidth=1, relief="solid", padding=10)
+             prop_frame.pack(fill=X, pady=5, padx=5)
+
+            # Load property image
+             try:
+                 
+                 img = Image.open(img_path).resize((150, 100))
+                 img_tk = ImageTk.PhotoImage(img)
+                 img_label = tb.Label(prop_frame, image=img_tk)
+                 img_label.image = img_tk  # Keep reference
+                 img_label.pack(side=LEFT, padx=10)
+             except:
+                # Use placeholder if image fails to load
+                 img_label = tb.Label(prop_frame, text="No Image", width=15, height=6)
+                 img_label.pack(side=LEFT, padx=10)
+
+            # Property details
+             details_frame = tb.Frame(prop_frame)
+             details_frame.pack(side=LEFT, fill=BOTH, expand=True)
+
+             tb.Label(details_frame, text=title, font=("Arial", 12, "bold")).grid(row=0, column=0, sticky=W)
+             tb.Label(details_frame, text=f"Owner: {owner}").grid(row=1, column=0, sticky=W)
+             tb.Label(details_frame, text=f"Location: {city}").grid(row=2, column=0, sticky=W)
+             tb.Label(details_frame, text=f"Type: {ptype} | BHK: {bhk}").grid(row=3, column=0, sticky=W)
+             tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
+             tb.Label(details_frame, text=f"Price: ₹{price:,.2f}", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky=W)
+
+            # Action buttons
+             btn_frame = tb.Frame(prop_frame)
+             btn_frame.pack(side=RIGHT, padx=10)
+
+            # Remove favorite button
+             remove_btn = tb.Button(btn_frame, text="Remove Favorite",
+                                 bootstyle=DANGER,
+                                 command=lambda pid=pid: toggle_favorite(pid))
+             remove_btn.pack(pady=2, fill=X)
+
+             view_btn = tb.Button(btn_frame, text="View Details",
+                               command=lambda pid=pid: prop_det_open(pid))
+             view_btn.pack(pady=2, fill=X)
+
+             rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
+                                   bootstyle=INFO,
+                                   command=lambda pid=pid: rent_buy_property(pid))
+             rent_buy_btn.pack(pady=2, fill=X)
+
+         except Exception as e:
+             
+             messagebox.showerror("Database Error", f"An error occurred: {str(e)}")
+
+    # Function to show rented/bought properties
+    def show_my_properties():
+       
+       
+        # Clear previous properties
+        for widget in prop_display.winfo_children():
+            widget.destroy()
+
+        try:
+            cursor.execute("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))")
+            cursor.execute("""
+            SELECT p.property_id, p.title, p.owner_username, p.location_city,
+                   p.rent_price, p.property_category, p.bhk,
+                   r.image_path, rp.furnishing_details, rp.area_sqft,
+                   tp.transaction_type, tp.transaction_date
+            FROM properties p
+            JOIN tenant_properties tp ON p.property_id = tp.property_id
+            LEFT JOIN res_prop_img r ON p.property_id = r.property_id
+            LEFT JOIN res_prop_det rp ON p.property_id = rp.property_id
+            WHERE tp.tenant_username = %s
+            GROUP BY p.property_id
+            """, (pfp_user_email,))
+           
+            my_properties = cursor.fetchall()
+           
+            cursor.execute("SET SESSION sql_mode=(SELECT CONCAT(@@sql_mode,',ONLY_FULL_GROUP_BY'))")
+           
+            if not my_properties:
+                tb.Label(prop_display, text="You haven't rented or bought any properties yet").pack(pady=50)
+                return
+               
+               
+        except Exception as e:
+            messagebox.showerror("Database Error", f"An error occurred: {str(e)}")
+           
+       
+           
+           
+           
+
+        # Display rented/bought properties
+        for idx, prop in enumerate(my_properties):
+            (pid, title, owner, city, price, ptype, bhk, img_path, furnishing, area, trans_type, trans_date) = prop
+           
+            # Create property frame
+            prop_frame = tb.Frame(prop_display, borderwidth=1, relief="solid", padding=10)
+            prop_frame.pack(fill=X, pady=5, padx=5)
+
+            # Load property image
+            try:
+                img = Image.open(img_path).resize((150, 100))
+                img_tk = ImageTk.PhotoImage(img)
+                img_label = tb.Label(prop_frame, image=img_tk)
+                img_label.image = img_tk  # Keep reference
+                img_label.pack(side=LEFT, padx=10)
+            except:
+                # Use placeholder if image fails to load
+                img_label = tb.Label(prop_frame, text="No Image", width=15, height=6)
+                img_label.pack(side=LEFT, padx=10)
+
+            # Property details
+            details_frame = tb.Frame(prop_frame)
+            details_frame.pack(side=LEFT, fill=BOTH, expand=True)
+
+            tb.Label(details_frame, text=title, font=("Arial", 12, "bold")).grid(row=0, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Owner: {owner}").grid(row=1, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Location: {city}").grid(row=2, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Type: {ptype} | BHK: {bhk}").grid(row=3, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Price: ₹{price:,.2f}", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky=W)
+            tb.Label(details_frame, text=f"Status: {trans_type.capitalize()} on {trans_date.strftime('%Y-%m-%d')}",
+                   font=("Arial", 10, "italic")).grid(row=6, column=0, sticky=W)
+
+            # Action buttons
+            btn_frame = tb.Frame(prop_frame)
+            btn_frame.pack(side=RIGHT, padx=10)
+
+            view_btn = tb.Button(btn_frame, text="View Details",
+                               command=lambda pid=pid: prop_det_open(pid))
+            view_btn.pack(pady=2, fill=X)
+
+    # Initialize with all properties
+    update_tenant_properties()
+
+    # Open the tenant dashboard
+    new_frame_open(tenant_frame, main_frame)
+     
         
         
         
