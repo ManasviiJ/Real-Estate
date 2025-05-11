@@ -1040,10 +1040,6 @@ def prop_det_open(pid):
 
     cursor.execute(query, (pid,))
     result = cursor.fetchall()
-    
-    print("DEBUG QUERY RESULT:")
-    print("Number of rows:", len(result))
-    print("Actual content:", result)
 
     if result:
         first_row = result[0]
@@ -1075,48 +1071,41 @@ def prop_det_open(pid):
 
     # ----------------- DISPLAY START ----------------- #
 
-    tb.Label(pdet_btn_frame, text=title, font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
-    tb.Label(pdet_btn_frame, text=f"{location_city}, {state}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
-    tb.Label(pdet_btn_frame, text=pid , font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
+    tb.Label(pdet_btn_frame, text=title, font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=W, pady=2, padx=(200,20))
+    tb.Label(pdet_btn_frame, text=f"{location_city}, {state}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=W, pady=2, padx=(200,20))      
+    tb.Label(pdet_btn_frame, text=pid , font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=W, pady=2, padx=(200,20))
 
-    sf3 = ScrolledFrame(pdet_btn_frame, autohide=True, width=1050, height=550)
-    sf3.grid(row=3, column=2, columnspan=3, padx=20, pady=20, sticky=W)
-
-    tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=1, row=0, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=f"{address}, {location_city}, {state}", font=("Montserrat", 12)).grid(column=2, row=0, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Property Category:", font=("Montserrat", 12)).grid(column=1, row=1, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=property_category, font=("Montserrat", 12)).grid(column=2, row=1, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=1, row=2, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=f"₹{rent_price}", font=("Montserrat", 12)).grid(column=2, row=2, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="BHK:", font=("Montserrat", 12)).grid(column=1, row=3, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=bhk, font=("Montserrat", 12)).grid(column=2, row=3, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Area sqft:", font=("Montserrat", 12)).grid(column=1, row=4, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=f"{area_sqft} sq.ft", font=("Montserrat", 12)).grid(column=2, row=4, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=1, row=5, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=furnishing_details, font=("Montserrat", 12)).grid(column=2, row=5, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Parking availability:", font=("Montserrat", 12)).grid(column=1, row=6, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=parking_availability, font=("Montserrat", 12)).grid(column=2, row=6, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=1, row=7, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=f"{age_of_property} years", font=("Montserrat", 12)).grid(column=2, row=7, sticky="nsew", padx=20, pady=10)
-
-    tb.Label(sf3, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky=tk.W, padx=20, pady=10)
-    tb.Label(sf3, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
+    sf3 = ScrolledFrame(pdet_btn_frame, autohide=True, width=900, height=550)
+    sf3.grid(row=3, column=2, columnspan=3, padx=20, pady=20, sticky=NSEW)
+    sf3.container.columnconfigure(1, weight=1)
+    sf3.container.columnconfigure(2, weight=2)
 
     cursor.execute(f"select * from res_prop_img where property_id = '{pid}'")
     imgs = cursor.fetchall()
         
     for idx, i in enumerate(imgs):
         imgVar = ImageTk.PhotoImage(Image.open(i[2]).resize((300, 150)))
-        img_label = tb.Label(sf3, image=imgVar)
+        img_label = tb.Label(sf3.container, image=imgVar)
         img_label.image = imgVar
-        img_label.grid(row=idx, column=0, sticky=E, padx=10, pady=10)
+        img_label.grid(row=idx*3, column=0, rowspan=3, sticky=E, padx=10, pady=10)
+
+    def add_row(label, value, r):
+            tb.Label(sf3.container, text=label, font=("Montserrat", 12)).grid(column=1, row=r, sticky="w", padx=20, pady=10)
+            tb.Label(sf3.container, text=value, font=("Montserrat", 12)).grid(column=2, row=r, sticky="nsew", padx=20, pady=10)
+
+    add_row("Location:", f"{address}\n{location_city}\n{state}", 0)
+    add_row("Property Category:", property_category, 1)
+    add_row("Price:", f"₹{rent_price}", 2)
+    add_row("BHK:", bhk, 3)
+    add_row("Area sqft:", f"{area_sqft} sq.ft", 4)
+    add_row("Furnishing details:", furnishing_details, 5)
+    add_row("Parking availability:", parking_availability, 6)
+    add_row("Age of property:", f"{age_of_property} years", 7)
+
+    tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
+    tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
+
+
 
 
 # >>>>>>>>>>>>>>>> MY PROPERTIES PAGE <<<<<<<<<<<<<<<<<<<
