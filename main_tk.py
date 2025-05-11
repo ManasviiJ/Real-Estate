@@ -5,13 +5,14 @@ from ttkbootstrap.constants import *
 import ttkbootstrap as tb
 from ttkbootstrap import ttk
 from ttkbootstrap.scrolled import ScrolledFrame
+from ttkbootstrap.tooltip import ToolTip
 from PIL import Image, ImageTk
 import mysql.connector as mys
 import os
 
 
 # >>>>>>>>>>>>>>>> Define the main window <<<<<<<<<<<<<<<<
-root = tb.Window(themename="superhero")
+root = tb.Window(themename="cyborg")
 root.geometry('1600x1400')
 root.title("Real Estate Management")
 
@@ -957,8 +958,10 @@ def post_prop_open():
     
     
     #upload imgs
-    tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton", command=upload_images).grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
-
+    ub = tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton", command=upload_images)
+    ub.grid(row=3, column=0, columnspan=3, padx=20, pady=20, sticky=W)
+    ToolTip(ub, text="Upload atleast 3 pictures of you property for the user to see. It is recommended to upload the image you want to be as the cover first.", bootstyle=(WARNING, INVERSE))
+    
     ## SUBMIT
     submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20, command=val_null)
     submit_button.grid(row=8, column=0, columnspan=3, pady=30)
@@ -1120,96 +1123,107 @@ def prop_det_open(pid):
 
 def my_tent_open():
     def see_prop(pid):
-        print("see_prop called!")  # Add this to confirm the function is even running
+        print("see_prop called!")
 
         def delete_prop():
             if messagebox.askyesno("Confirm", "Are you sure you want to remove this property? You will not be able to recover your property again."):
                 messagebox.showwarning("Success", "Your property has been removed")
-                
                 cursor.execute(f"DELETE FROM RES_PROP_DET WHERE PROPERTY_ID = '{pid}'")
                 cursor.execute(f"DELETE FROM RES_PROP_IMG WHERE PROPERTY_ID = '{pid}'")
                 cursor.execute(f"DELETE FROM PROPERTIES WHERE PROPERTY_ID = '{pid}'")
                 mycon.commit()
                 back_to_main_frame(f1, my_tent_frame)
                 f1.destroy()
-                
-                
             else:
                 messagebox.showwarning("Failed", "Your property has not been removed.")
 
-
         f1 = tb.Frame(root)
         new_frame_open(f1, my_tent_frame)
-        
-        f1_btn_frame = tb.Frame(f1, width=100, height=750)
-        f1_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+
+        # Grid layout configuration
+        f1.columnconfigure(0, weight=0)  # Sidebar
+        f1.columnconfigure(1, weight=1)  # Main content
+        f1.columnconfigure(2, weight=0)  # User sidebar
+        f1.rowconfigure(3, weight=1)     # Main scrollable row
+
+        # Button sidebar
+        f1_btn_frame = tb.Frame(f1, width=120)
+        f1_btn_frame.grid(row=0, column=0, rowspan=20, sticky="ns")
+        f1_btn_frame.grid_propagate(False)
 
         tb.Button(f1_btn_frame, text="Go back", command=lambda: back_to_main_frame(f1, my_tent_frame)).grid(row=0, column=0, pady=10, padx=10)
         tb.Button(f1_btn_frame, text="Edit\nProperty", bootstyle=(INFO, OUTLINE)).grid(row=1, column=0, pady=10, padx=10)
-        tb.Button(f1_btn_frame, text="Delete\nProperty", bootstyle=(DANGER,OUTLINE), command= delete_prop).grid(row=2, column=0, pady=10, padx=10)        
+        db = tb.Button(f1_btn_frame, text="Remove\nProperty", bootstyle=(DANGER, OUTLINE), command=delete_prop)
+        db.grid(row=2, column=0, pady=10, padx=10)
+        ToolTip(db, "This action cannot be undone.")
 
-        tb.Separator(f1, orient=VERTICAL).grid(column=10, row=0, rowspan=20, sticky=NS)
-        f1_user_frame = tb.Frame(f1, width=200, height=600)
-        f1_user_frame.grid(row=0, column=11, rowspan=20, sticky=NS)
-        
-        tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat",12)).grid(row=0,column=0,pady=10)
+        # Toggle button for user sidebar
+        toggle_btn = tb.Button(f1, text="Hide Sidebar", bootstyle=SUCCESS)
+        toggle_btn.grid(row=2, column=2, pady=10, sticky="n")
 
-        cursor.execute(f"select * from properties where property_id = '{pid}'")
+        # User sidebar in a ScrolledFrame to prevent overflow
+        user_sidebar = ScrolledFrame(f1, width=350, height=600)
+        user_sidebar.grid(row=3, column=2, sticky="ns", padx=(10, 10), pady=(0, 10))
+        user_sidebar.grid_propagate(False)
+
+        f1_user_frame = user_sidebar.container
+        tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat", 12)).grid(row=0, column=0, pady=10)
+
+        # Toggle logic
+        def toggle_sidebar():
+            if user_sidebar.winfo_ismapped():
+                user_sidebar.grid_remove()
+                toggle_btn.config(text="Show Sidebar")
+            else:
+                user_sidebar.grid()
+                toggle_btn.config(text="Hide Sidebar")
+
+        toggle_btn.config(command=toggle_sidebar)
+
+        # Property data
+        cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
         (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
-        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
+        cursor.execute(f"SELECT * FROM res_prop_det WHERE property_id = '{pid}'")
         (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
-        cursor.execute(f"select * from loc where city = '{location_city}'")
+        cursor.execute(f"SELECT * FROM loc WHERE city = '{location_city}'")
         (state, _) = cursor.fetchone()
-        
-        tb.Label(f1, text=title, font=("Montserrat",18)).grid(row=0, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
-        tb.Label(f1, text=f"{location_city}, {state}", font=("Montserrat",16)).grid(row=1, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))      
-        tb.Label(f1, text=pid , font=("Montserrat",12)).grid(row=2, column=1, columnspan=5, sticky=EW, pady=2, padx=(200,20))
 
+        # Titles
+        tb.Label(f1, text=title, font=("Montserrat", 18)).grid(row=0, column=1, sticky="ew", columnspan=1, pady=2, padx=10)
+        tb.Label(f1, text=f"{location_city}, {state}", font=("Montserrat", 16)).grid(row=1, column=1, sticky="ew", columnspan=1, pady=2, padx=10)
+        tb.Label(f1, text=pid, font=("Montserrat", 12)).grid(row=2, column=1, sticky="ew", columnspan=1, pady=2, padx=10)
+
+        # Main content scrolled frame
         sf3 = ScrolledFrame(f1, width=900, height=575)
-        sf3.grid(row=3, column=1, sticky=EW)
-        
-        cursor.execute(f"select * from res_prop_img where property_id = '{pid}'")
+        sf3.grid(row=3, column=1, sticky="nsew", padx=10, pady=10)
+        sf3.container.columnconfigure(1, weight=1)
+        sf3.container.columnconfigure(2, weight=2)
+
+        # Images
+        cursor.execute(f"SELECT * FROM res_prop_img WHERE property_id = '{pid}'")
         imgs = cursor.fetchall()
-        
         for idx, i in enumerate(imgs):
             imgVar = ImageTk.PhotoImage(Image.open(i[2]).resize((300, 150)))
-            img_label = tb.Label(sf3, image=imgVar)
+            img_label = tb.Label(sf3.container, image=imgVar)
             img_label.image = imgVar
-            img_label.grid(row=idx, column=0, sticky=E, padx=10, pady=10)
+            img_label.grid(row=idx * 3, column=0, rowspan=3, padx=10, pady=10)
 
-        cursor.execute(f"select * from properties where property_id = '{pid}'")
-        (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
-        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
-        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
-        cursor.execute(f"select * from loc where city = '{location_city}'")
-        (state, _) = cursor.fetchone()
+        # Info rows
+        def add_row(label, value, r):
+            tb.Label(sf3.container, text=label, font=("Montserrat", 12)).grid(column=1, row=r, sticky="w", padx=20, pady=10)
+            tb.Label(sf3.container, text=value, font=("Montserrat", 12)).grid(column=2, row=r, sticky="nsew", padx=20, pady=10)
 
-        tb.Label(sf3, text="Location:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=f"{address}, {location_city}, {state}", font=("Montserrat", 12)).grid(column=1, row=0, sticky="nsew", padx=20, pady=10)
+        add_row("Location:", f"{address}\n{location_city}\n{state}", 0)
+        add_row("Property Category:", property_category, 1)
+        add_row("Price:", f"₹{rent_price}", 2)
+        add_row("BHK:", bhk, 3)
+        add_row("Area sqft:", f"{area_sqft} sq.ft", 4)
+        add_row("Furnishing details:", furnishing_details, 5)
+        add_row("Parking availability:", parking_availability, 6)
+        add_row("Age of property:", f"{age_of_property} years", 7)
 
-        tb.Label(sf3, text="Property Category:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=property_category, font=("Montserrat", 12)).grid(column=1, row=2, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Price:", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=f"₹{rent_price}", font=("Montserrat", 12)).grid(column=1, row=3, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="BHK:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=bhk, font=("Montserrat", 12)).grid(column=1, row=4, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Area sqft:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=f"{area_sqft} sq.ft", font=("Montserrat", 12)).grid(column=1, row=5, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=furnishing_details, font=("Montserrat", 12)).grid(column=1, row=6, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Parking availability:", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=parking_availability, font=("Montserrat", 12)).grid(column=1, row=7, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Age of property:", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=f"{age_of_property} years", font=("Montserrat", 12)).grid(column=1, row=8, sticky="nsew", padx=20, pady=10)
-
-        tb.Label(sf3, text="Description:", font=("Montserrat", 12)).grid(column=0, row=9, sticky=tk.W, padx=20, pady=10)
-        tb.Label(sf3, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=1, row=9, sticky="w", padx=20, pady=10)
+        tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
+        tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
 
     
     new_frame_open(my_tent_frame, main_frame)
