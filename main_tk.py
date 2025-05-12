@@ -770,7 +770,7 @@ def post_prop_open():
     post_btn_frame = tb.Frame(post_prop_frame, width=0, height=750)
     post_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
     tb.Button(post_btn_frame, text="Go back", command=lambda: back_to_main_frame(post_prop_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
-    tb.Separator(post_prop_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
+    tb.Separator(post_prop_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 20), sticky=NS, rowspan=4)
 
     tb.Label(post_prop_frame, text="POST YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
 
@@ -1120,11 +1120,15 @@ def my_tent_open():
                 messagebox.showwarning("Failed", "Your property has not been removed.")
                 
         def edit_prop():
-            eframe = tb.Frame(root)
+            edit_win = tb.Toplevel(root)
+            edit_win.title("Edit Property")
+            edit_win.geometry("1200x800")  # Adjust as needed
+            
+            eframe = tb.Frame(edit_win)
             eframe.pack(fill=BOTH, expand=TRUE)
             ebtn_frame = tb.Frame(eframe, width=0, height=750)
             ebtn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
-            tb.Button(ebtn_frame, text="Cancel", command=lambda: back_to_main_frame(eframe, f1)).grid(row=0, column=0, pady=20, padx=20)
+            tb.Button(ebtn_frame, text="Cancel", command=edit_win.destroy).grid(row=0, column=0, pady=20, padx=20)
             tb.Separator(eframe, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
             tb.Label(eframe, text="EDIT YOUR PROPERTY", font=("Montserrat", 28, "bold")).grid(row=0, column=2, columnspan=3, padx=250, pady=20, sticky=tk.W)
@@ -1136,6 +1140,11 @@ def my_tent_open():
             (_, _, pcat, eloc, etit, ead, erp, ebhk) = cursor.fetchone()
             cursor.execute(f"select * from res_prop_Det where property_id = '{pid}'")
             (_, _, ear, efur, epar, eage, edesc) = cursor.fetchone()
+            cursor.execute(f"select image_path from res_prop_img where property_id = '{pid}'")
+            ii = cursor.fetchall()
+            fp = []
+            for ei in ii:
+                fp.append(ei[0])
            
             if "S" in pid:
                 sell_lease = "SELL"
@@ -1162,9 +1171,9 @@ def my_tent_open():
 
             # Title
             tb.Label(Prop_dets_frame, text="Title:", font=("Montserrat", 12)).grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
-            title = tb.Entry(Prop_dets_frame, width=40)
+            deft1 = tb.StringVar(value=etit)
+            title = tb.Entry(Prop_dets_frame, width=40, textvariable= deft1)
             title.grid(row=0, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            title.set(etit)
 
             # Location
             tb.Label(Prop_dets_frame, text="Location:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
@@ -1174,21 +1183,21 @@ def my_tent_open():
 
             # Address
             tb.Label(Prop_dets_frame, text="Address:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
-            address = tb.Entry(Prop_dets_frame, width=40)
+            deft2 = tb.StringVar(value=ead)
+            address = tb.Entry(Prop_dets_frame, width=40, textvariable= deft2)
             address.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            address.set(ead)
 
             # Number of rooms
             tb.Label(Prop_dets_frame, text="No of rooms (BHK):", font=("Montserrat", 12)).grid(column=0, row=3, sticky=tk.W, padx=20, pady=10)
-            bhk = tb.Entry(Prop_dets_frame, width=40)
+            deft3 = tb.StringVar(value=ebhk)
+            bhk = tb.Entry(Prop_dets_frame, width=40, textvariable=deft3)
             bhk.grid(row=3, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            bhk.set(ebhk)
 
             # Area sqft
             tb.Label(Prop_dets_frame, text="Area sqft:", font=("Montserrat", 12)).grid(column=0, row=4, sticky=tk.W, padx=20, pady=10)
-            area = tb.Entry(Prop_dets_frame, width=40)
+            deft4 = tb.StringVar(value=ear)
+            area = tb.Entry(Prop_dets_frame, width=40, textvariable=deft4)
             area.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            area.set(ear)
 
             # Furnishing details
             tb.Label(Prop_dets_frame, text="Furnishing details:", font=("Montserrat", 12)).grid(column=0, row=5, sticky=tk.W, padx=20, pady=10)
@@ -1210,15 +1219,15 @@ def my_tent_open():
 
             # Age of Property
             tb.Label(Prop_dets_frame, text="Age of Property", font=("Montserrat", 12)).grid(column=0, row=7, sticky=tk.W, padx=20, pady=10)
-            age = tb.Entry(Prop_dets_frame, width=40)
+            deft5 = tb.StringVar(value=eage)
+            age = tb.Entry(Prop_dets_frame, width=40, textvariable=deft5)
             age.grid(row=7, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            age.set(eage)
 
             # Description
             tb.Label(Prop_dets_frame, text="Description", font=("Montserrat", 12)).grid(column=0, row=8, sticky=tk.W, padx=20, pady=10)
-            desc = tb.Entry(Prop_dets_frame, width=40)
+            deft6 = tb.StringVar(value=edesc)            
+            desc = tb.Entry(Prop_dets_frame, width=40, textvariable=deft6)
             desc.grid(row=8, column=1, columnspan=2, padx=10, pady=10, sticky=tk.EW)
-            desc.set(edesc)
 
             # UPLOADING MEDIA
             style = tb.Style()
@@ -1234,9 +1243,21 @@ def my_tent_open():
             # Price/Rent
             price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
             price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
-            price_entry = tb.Entry(Price_frame, width=40)
+            deft7 = tb.StringVar(value=erp)
+            price_entry = tb.Entry(Price_frame, width=40, textvariable=deft7)
             price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
-            price_entry.set(erp)
+        
+            for path in fp:
+                img = Image.open(path)
+                img.thumbnail((300, 300))  # Resize for display
+                img_tk = ImageTk.PhotoImage(img)
+                
+                index = fp.index(path)
+                row = index // 3
+                column = index % 3
+                
+                label = tk.Label(sf3, image=img_tk)
+                label.grid(row=row, column=column, padx=5, pady=5)
         
             def upload_images():
                 file_paths = filedialog.askopenfilenames(title="Select Images", 
@@ -1261,8 +1282,7 @@ def my_tent_open():
                         
                         label = tk.Label(sf3, image=img_tk)
                         label.grid(row=row, column=column, padx=5, pady=5)
-            images =[]
-            fp = []    
+            images = []
             
             def img_in_db(fpp, pid):
                 for p in fpp:
@@ -1270,9 +1290,38 @@ def my_tent_open():
                     ip = os.path.normpath(ip)
                     ip = ip.replace("\\", "\\\\")
 
-                    query = f"insert into res_prop_img(property_id,image_path) values ('{pid}','{ip}')"
+                    query = f"update res_prop_img set image_path = '{ip}' where property_id = '{pid}'"
                     cursor.execute(query)
                     mycon.commit()
+            
+            def post_prop(): 
+                p_cat = prop_type.get()
+                p_tit = title.get()
+                p_loc = loc.get()
+                p_add = address.get()
+                p_bhk = bhk.get()
+                p_area = area.get()
+                p_fur = fur.get()
+                p_park = park.get()
+                p_age = age.get()
+                p_desc = desc.get()
+                p_price = price_entry.get()
+                
+                
+                query = f"update properties set property_category = '{p_cat}', location_city = '{p_loc}', title = '{p_tit}', address = '{p_add}', rent_price = {p_price}, bhk = {p_bhk} where property_id = '{pid}'"
+                cursor.execute(query)
+                mycon.commit()
+                
+                if p_cat in ('Apartment','Independent House','Villa'):
+                    query = f"update res_prop_det set area_sqft = {p_area}, furnishing_details = '{p_fur}', parking_availability = {p_park}, age_of_property = {p_age}, description = '{p_desc}' where property_id = '{pid}'"
+                    cursor.execute(query)
+                    mycon.commit()
+                if len(fp) == 0:
+                    messagebox.showerror("No Images Uploaded", "Please upload images of your property")
+                else:          
+                    img_in_db(fp, f"{pid}")
+                    messagebox.showinfo("Success", "Your property has been listed! Buyers can now view it.")
+            
                                
             #upload imgs
             ub = tb.Button(sf2, text="Upload images and other media of your property", style="Warning.Link.TButton", command=upload_images)
@@ -1280,7 +1329,7 @@ def my_tent_open():
             ToolTip(ub, text="Upload atleast 3 pictures of you property for the user to see. It is recommended to upload the image you want to be as the cover first.", bootstyle=(WARNING, INVERSE))
             
             ## SUBMIT
-            submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20)
+            submit_button = tb.Button(sf2, text="SUBMIT", bootstyle=SUCCESS, width=20, command=post_prop)
             submit_button.grid(row=8, column=0, columnspan=3, pady=30)
                 
             
@@ -1302,7 +1351,7 @@ def my_tent_open():
         f1_btn_frame.grid_propagate(False)
 
         tb.Button(f1_btn_frame, text="Go back", command=lambda: back_to_main_frame(f1, my_tent_frame)).grid(row=0, column=0, pady=10, padx=10)
-        tb.Button(f1_btn_frame, text="Edit\nProperty", bootstyle=(INFO, OUTLINE)).grid(row=1, column=0, pady=10, padx=10)
+        tb.Button(f1_btn_frame, text="Edit\nProperty", bootstyle=(INFO, OUTLINE), command= edit_prop).grid(row=1, column=0, pady=10, padx=10)
         db = tb.Button(f1_btn_frame, text="Remove\nProperty", bootstyle=(DANGER, OUTLINE), command=delete_prop)
         db.grid(row=2, column=0, pady=10, padx=10)
         ToolTip(db, "This action cannot be undone.")
@@ -1832,11 +1881,7 @@ def tenant_dashboard_open():
                
         except Exception as e:
             messagebox.showerror("Database Error", f"An error occurred: {str(e)}")
-           
-       
-           
-           
-           
+          
 
         # Display rented/bought properties
         for idx, prop in enumerate(my_properties):
