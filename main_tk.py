@@ -53,7 +53,7 @@ def login_success():
 
 
 def role_select(uname):
-    global img_tent, img_agent, img_own  # Keep reference to images
+    global img_tent, img_own  # Keep reference to images
 
     role_select_frame = tk.Toplevel(main_frame)
     role_select_frame.title("Select your role")
@@ -71,14 +71,6 @@ def role_select(uname):
                              command=lambda: select_role("Tenant",uname,role_select_frame))
     img_btn_tent.pack(pady=10)
     tb.Label(rframe, text="TENANT", font=("Arial", 14), bootstyle="primary").pack()
-
-    # Agent Role Button
-    img_agent = Image.open("images/agent.jpeg").resize((100, 100))
-    img_agent = ImageTk.PhotoImage(img_agent)
-    img_btn_agent = tb.Button(rframe, image=img_agent, bootstyle=tb.LINK, 
-                              command=lambda: select_role("Agent",uname,role_select_frame))
-    img_btn_agent.pack(pady=10)
-    tb.Label(rframe, text="AGENT", font=("Arial", 14), bootstyle="primary").pack()
 
     # Owner Role Button
     img_own = Image.open("images/owner.jpeg").resize((100, 100))
@@ -1360,7 +1352,7 @@ def my_tent_open():
         toggle_btn = tb.Button(f1, text="Hide Sidebar", bootstyle=SUCCESS)
         toggle_btn.grid(row=2, column=2, pady=10, sticky="n")
 
-        # User sidebar in a ScrolledFrame to prevent overflow
+        '''# User sidebar in a ScrolledFrame to prevent overflow
         user_sidebar = ScrolledFrame(f1, width=350, height=600)
         user_sidebar.grid(row=3, column=2, sticky="ns", padx=(10, 10), pady=(0, 10))
         user_sidebar.grid_propagate(False)
@@ -1378,7 +1370,7 @@ def my_tent_open():
                 toggle_btn.config(text="Hide Sidebar")
 
         toggle_btn.config(command=toggle_sidebar)
-
+'''
         # Property data
         cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
         (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
@@ -1574,13 +1566,13 @@ def tenant_dashboard_open():
     btn_frame = tb.Frame(content_frame)
     btn_frame.pack(fill=X, pady=10)
    
-    favorites_btn = tb.Button(btn_frame, text="My Favorites", bootstyle=INFO,
+    favorites_btn = tb.Button(back_frame, text="My Favorites", bootstyle=INFO,
                              command=lambda: show_favorites())
-    favorites_btn.pack(side=LEFT, padx=5)
+    favorites_btn.pack(pady=10, padx=5)
    
-    my_props_btn = tb.Button(btn_frame, text="My Properties", bootstyle=INFO,
+    my_props_btn = tb.Button(back_frame, text="My Properties", bootstyle=INFO,
                             command=lambda: show_my_properties())
-    my_props_btn.pack(side=LEFT, padx=5)
+    my_props_btn.pack(pady=10, padx=5)
 
     # Function to update property display based on filters
     def update_tenant_properties():
@@ -1920,9 +1912,9 @@ def tenant_dashboard_open():
             btn_frame = tb.Frame(prop_frame)
             btn_frame.pack(side=RIGHT, padx=10)
 
-            view_btn = tb.Button(btn_frame, text="View Details",
-                               command=lambda pid=pid: prop_det_open(pid, tenant_frame))
-            view_btn.pack(pady=2, fill=X)
+           # view_btn = tb.Button(btn_frame, text="View Details",
+            #                   command=view_prop)
+            #view_btn.pack(pady=2, fill=X)
 
     # Initialize with all properties
     update_tenant_properties()
