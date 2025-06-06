@@ -12,13 +12,36 @@ import os
 
 
 # >>>>>>>>>>>>>>>> Define the main window <<<<<<<<<<<<<<<<
-root = tb.Window(themename="superhero")
+root = tb.Window(themename="cyborg")
 root.geometry('1600x1400')
 root.title("Real Estate Management")
 
 # Connecting MySQL to Python Interface
 mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
 cursor = mycon.cursor()
+
+# make sure 'interested_users' table exists
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS interested_users (
+    tenant_username VARCHAR(100),
+    property_id VARCHAR(100),
+    PRIMARY KEY (tenant_username, property_id),
+    FOREIGN KEY (tenant_username) REFERENCES users(username),
+    FOREIGN KEY (property_id) REFERENCES properties(property_id)
+)
+""")
+mycon.commit()
+
+# make sure 'transaction_type' column exists in the table
+try:
+    cursor.execute("ALTER TABLE interested_users ADD COLUMN transaction_type VARCHAR(20)")
+    mycon.commit()
+except mys.errors.ProgrammingError as e:
+    if "Duplicate column name" in str(e):
+        pass  # Column already exists: ignore
+    else:
+        raise  # Raise unexpected errors
+
 
 
 
@@ -53,7 +76,7 @@ def login_success():
 
 
 def role_select(uname):
-    global img_tent, img_agent, img_own  # Keep reference to images
+    global img_tent, img_own  # Keep reference to images
 
     role_select_frame = tk.Toplevel(main_frame)
     role_select_frame.title("Select your role")
@@ -71,14 +94,6 @@ def role_select(uname):
                              command=lambda: select_role("Tenant",uname,role_select_frame))
     img_btn_tent.pack(pady=10)
     tb.Label(rframe, text="TENANT", font=("Arial", 14), bootstyle="primary").pack()
-
-    # Agent Role Button
-    img_agent = Image.open("images/agent.jpeg").resize((100, 100))
-    img_agent = ImageTk.PhotoImage(img_agent)
-    img_btn_agent = tb.Button(rframe, image=img_agent, bootstyle=tb.LINK, 
-                              command=lambda: select_role("Agent",uname,role_select_frame))
-    img_btn_agent.pack(pady=10)
-    tb.Label(rframe, text="AGENT", font=("Arial", 14), bootstyle="primary").pack()
 
     # Owner Role Button
     img_own = Image.open("images/owner.jpeg").resize((100, 100))
@@ -1004,6 +1019,13 @@ def prop_det_open(pid):
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
+    cursor.execute("SELECT role FROM users WHERE username = %s", (pfp_user_email,))
+    user_role = cursor.fetchone()[0]
+
+    if user_role == "Tenant":
+        tb.Button(pdet_btn_frame, text="Rent/Buy", bootstyle=SUCCESS,
+              command=lambda: rent_buy_property(pid, "Rent")).grid(row=3, column=1, pady=10)
+
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
@@ -1099,6 +1121,7 @@ def prop_det_open(pid):
     tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
     tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
 
+    
 
 
 
@@ -1367,7 +1390,36 @@ def my_tent_open():
 
         f1_user_frame = user_sidebar.container
         tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat", 12)).grid(row=0, column=0, pady=10)
+        
+        print(f"[DEBUG] see_prop() called with pid='{pid}'")
 
+# Show all interested_users for this property, using TRIM to handle space issue
+        cursor.execute("""
+         SELECT u.name, u.username, u.phone, iu.transaction_type
+        FROM interested_users iu
+        JOIN users u ON iu.tenant_username = u.username
+        WHERE TRIM(iu.property_id) = %s
+        """, (pid.strip(),))
+        interested_users = cursor.fetchall()
+
+# Optional full dump — you can comment this out later
+        cursor.execute("SELECT tenant_username, HEX(property_id), property_id, transaction_type FROM interested_users")
+        all_interests = cursor.fetchall()
+        print("[DEBUG] All rows in interested_users table:")
+        for row in all_interests:
+            print(row)
+
+# Display sidebar
+        if not interested_users:
+            tb.Label(f1_user_frame, text="No interest yet.").grid(row=1, column=0, padx=10, pady=5, sticky=W)
+        else:
+            
+            for i, (name, username, phone, transaction_type) in enumerate(interested_users, start=1):
+                tb.Label(f1_user_frame, text=f"{i}. {name}\n📧 {username}\n📞 {phone}\nTransaction: {transaction_type}", wraplength=300, justify="left").grid(row=i, column=0, padx=10, pady=5, sticky=W)
+
+                
+        
+        
         # Toggle logic
         def toggle_sidebar():
             if user_sidebar.winfo_ismapped():
@@ -1574,13 +1626,13 @@ def tenant_dashboard_open():
     btn_frame = tb.Frame(content_frame)
     btn_frame.pack(fill=X, pady=10)
    
-    favorites_btn = tb.Button(btn_frame, text="My Favorites", bootstyle=INFO,
+    favorites_btn = tb.Button(back_frame, text="My Favorites", bootstyle=INFO,
                              command=lambda: show_favorites())
-    favorites_btn.pack(side=LEFT, padx=5)
+    favorites_btn.pack(pady=10, padx=5)
    
-    my_props_btn = tb.Button(btn_frame, text="My Properties", bootstyle=INFO,
+    my_props_btn = tb.Button(back_frame, text="My Properties", bootstyle=INFO,
                             command=lambda: show_my_properties())
-    my_props_btn.pack(side=LEFT, padx=5)
+    my_props_btn.pack(pady=10, padx=5)
 
     # Function to update property display based on filters
     def update_tenant_properties():
@@ -1691,70 +1743,82 @@ def tenant_dashboard_open():
                               command=lambda pid=pid: toggle_favorite(pid))
             fav_btn.pack(pady=2, fill=X)
 
-            
+            view_btn = tb.Button(btn_frame, text="View Details",
+                               command=lambda pid=pid: prop_det_open(pid))
+            view_btn.pack(pady=2, fill=X)
+            t="Buy" if pid.startswith("S") else "Rent"
 
             rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
                                    bootstyle=INFO,
-                                   command=lambda pid=pid: rent_buy_property(pid))
+                                   command=lambda pid=pid,typ=t: rent_buy_property(pid,typ))
             rent_buy_btn.pack(pady=2, fill=X)
 
     # Function to toggle favorite status
     def toggle_favorite(property_id):
-        cursor.execute("SELECT 1 FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
+        
+        try:
+        # Check if prop is already favorited
+            cursor.execute("SELECT 1 FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
                       (pfp_user_email, property_id))
-       
-        if cursor.fetchone():
+        
+            if cursor.fetchone():
+                
             # Remove from favorites
-            cursor.execute("DELETE FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
+                cursor.execute("DELETE FROM tenant_favorites WHERE tenant_username = %s AND property_id = %s",
                           (pfp_user_email, property_id))
-            messagebox.showinfo("Success", "Property removed from favorites")
-        else:
+                messagebox.showinfo("Success", "Property removed from favorites")
+            else:
             # Add to favorites
-            cursor.execute("INSERT INTO tenant_favorites (tenant_username, property_id) VALUES (%s, %s)",
+                cursor.execute("INSERT INTO tenant_favorites (tenant_username, property_id) VALUES (%s, %s)",
                           (pfp_user_email, property_id))
-            messagebox.showinfo("Success", "Property added to favorites")
-       
-        mycon.commit()
-        update_tenant_properties()
-
+                messagebox.showinfo("Success", "Property added to favorites")
+          
+            mycon.commit()
+            update_tenant_properties()
+        except mys.Error as err:
+            
+            messagebox.showerror("Database Error", f"Failed to update favorites: {err}")
+    
     # Function to handle rent/buy action
-    def rent_buy_property(property_id):
-        # Check if property is already rented/bought
-        cursor.execute("""
-        SELECT 1 FROM tenant_properties
-        WHERE tenant_username = %s AND property_id = %s
-        """, (pfp_user_email, property_id))
-       
-        if cursor.fetchone():
-            messagebox.showinfo("Info", "You've already rented/bought this property")
+    def rent_buy_property(property_id, transaction_type):
+        
+    # Ask for confirmation
+        confirm = messagebox.askyesno("Confirm Interest", "Are you interested in this property?")
+        if not confirm:
             return
 
-        # Ask for transaction type
-        transaction = messagebox.askquestion("Transaction",
-                                           "Do you want to RENT this property? (No for Buy)")
-       
-        transaction_type = "rented" if transaction == "yes" else "bought"
-       
-        # Record transaction
-        cursor.execute("""
-        INSERT INTO tenant_properties (tenant_username, property_id, transaction_type)
-        VALUES (%s, %s, %s)
-        """, (pfp_user_email, property_id, transaction_type))
-       
-        mycon.commit()
-        messagebox.showinfo("Success", f"Property {transaction_type} successfully!")
-        update_tenant_properties()
+        try:
+        # Insert the interest if not already added
+            property_id_padded = property_id.ljust(10)
+            print(f"[DEBUG] INSERTING: tenant_username={pfp_user_email}, property_id='[{property_id}]', length={len(property_id)}")
+
+            cursor.execute("""
+            INSERT IGNORE INTO interested_users (tenant_username, property_id, transaction_type)
+            VALUES (%s, %s, %s)
+        """, (pfp_user_email, property_id_padded, transaction_type))
+            mycon.commit()
+            
+
+        # Show success message
+            messagebox.showinfo("Success", "Your interest has been shared with the owner.\nThey may contact you soon.")
+        except Exception as e:
+        # Show error if something goes wrong
+            messagebox.showerror("Error", f"Could not contact the owner.\n\nReason: {e}")
+            
+         
 
     # Function to show favorite properties
     def show_favorites():
-         for widget in prop_display.winfo_children():
-             widget.destroy()
+        
+        
+    # Clear previous properties
+        for widget in prop_display.winfo_children():
+            widget.destroy()
 
-         try:
-             
-             
-        # Get favorite properties with proper GROUP BY handling
-             query = """
+        try:
+            
+        # Subquery approach to safely get one image per property
+            query = """
         SELECT
             p.property_id,
             p.title,
@@ -1763,84 +1827,73 @@ def tenant_dashboard_open():
             p.rent_price,
             p.property_category,
             p.bhk,
-            MAX(r.image_path) as image_path,  -- Use aggregate for image
+            (
+                SELECT MIN(image_path)
+                FROM res_prop_img
+                WHERE property_id = p.property_id
+            ) AS image_path,
             rp.furnishing_details,
             rp.area_sqft
         FROM properties p
         JOIN tenant_favorites tf ON p.property_id = tf.property_id
-        LEFT JOIN res_prop_img r ON p.property_id = r.property_id
         LEFT JOIN res_prop_det rp ON p.property_id = rp.property_id
         WHERE tf.tenant_username = %s
-        GROUP BY
-            p.property_id,
-            p.title,
-            p.owner_username,
-            p.location_city,
-            p.rent_price,
-            p.property_category,
-            p.bhk,
-            rp.furnishing_details,
-            rp.area_sqft
         """
-       
-             cursor.execute(query, (pfp_user_email,))
-             favorites = cursor.fetchall()
+            cursor.execute(query, (pfp_user_email,))
+            favorites = cursor.fetchall()
 
-             if not favorites:
-                 tb.Label(prop_display, text="You haven't favorited any properties yet").pack(pady=50)
-                 return
+            if not favorites:
+                tb.Label(prop_display, text="You haven't favorited any properties yet").pack(pady=50)
+                return
 
-        # Display favorite properties
-             for idx, prop in enumerate(favorites):
-                 (pid, title, owner, city, price, ptype, bhk, img_path, furnishing, area) = prop
-           
+            for idx, prop in enumerate(favorites):
+                (pid, title, owner, city, price, ptype, bhk, img_path, furnishing, area) = prop
+
             # Create property frame
-             prop_frame = tb.Frame(prop_display, borderwidth=1, relief="solid", padding=10)
-             prop_frame.pack(fill=X, pady=5, padx=5)
+                prop_frame = tb.Frame(prop_display, borderwidth=1, relief="solid", padding=10)
+                prop_frame.pack(fill=X, pady=5, padx=5)
 
             # Load property image
-             try:
-                 
-                 img = Image.open(img_path).resize((150, 100))
-                 img_tk = ImageTk.PhotoImage(img)
-                 img_label = tb.Label(prop_frame, image=img_tk)
-                 img_label.image = img_tk  # Keep reference
-                 img_label.pack(side=LEFT, padx=10)
-             except:
-                # Use placeholder if image fails to load
-                 img_label = tb.Label(prop_frame, text="No Image", width=15, height=6)
-                 img_label.pack(side=LEFT, padx=10)
+                try:
+                    img = Image.open(img_path).resize((150, 100))
+                    img_tk = ImageTk.PhotoImage(img)
+                    img_label = tb.Label(prop_frame, image=img_tk)
+                    img_label.image = img_tk  # Keep reference
+                    img_label.pack(side=LEFT, padx=10)
+                except:
+                    img_label = tb.Label(prop_frame, text="No Image", width=15, height=6)
+                    img_label.pack(side=LEFT, padx=10)
 
             # Property details
-             details_frame = tb.Frame(prop_frame)
-             details_frame.pack(side=LEFT, fill=BOTH, expand=True)
+                details_frame = tb.Frame(prop_frame)
+                details_frame.pack(side=LEFT, fill=BOTH, expand=True)
 
-             tb.Label(details_frame, text=title, font=("Arial", 12, "bold")).grid(row=0, column=0, sticky=W)
-             tb.Label(details_frame, text=f"Owner: {owner}").grid(row=1, column=0, sticky=W)
-             tb.Label(details_frame, text=f"Location: {city}").grid(row=2, column=0, sticky=W)
-             tb.Label(details_frame, text=f"Type: {ptype} | BHK: {bhk}").grid(row=3, column=0, sticky=W)
-             tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
-             tb.Label(details_frame, text=f"Price: ₹{price:,.2f}", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky=W)
+                tb.Label(details_frame, text=title, font=("Arial", 12, "bold")).grid(row=0, column=0, sticky=W)
+                tb.Label(details_frame, text=f"Owner: {owner}").grid(row=1, column=0, sticky=W)
+                tb.Label(details_frame, text=f"Location: {city}").grid(row=2, column=0, sticky=W)
+                tb.Label(details_frame, text=f"Type: {ptype} | BHK: {bhk}").grid(row=3, column=0, sticky=W)
+                tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
+                tb.Label(details_frame, text=f"Price: ₹{price:,}").grid(row=5, column=0, sticky=W)
 
-            # Action buttons
-             btn_frame = tb.Frame(prop_frame)
-             btn_frame.pack(side=RIGHT, padx=10)
+            # Buttons
+                btn_frame = tb.Frame(prop_frame)
+                btn_frame.pack(side=RIGHT, padx=10)
 
-            # Remove favorite button
-             remove_btn = tb.Button(btn_frame, text="Remove Favorite",
-                                 bootstyle=DANGER,
-                                 command=lambda pid=pid: toggle_favorite(pid))
-             remove_btn.pack(pady=2, fill=X)
+                remove_btn = tb.Button(btn_frame, text="Remove Favorite", bootstyle=DANGER,
+                                   command=lambda pid=pid: toggle_favorite(pid))
+                remove_btn.pack(pady=2, fill=X)
+  
+                view_btn = tb.Button(btn_frame, text="View Details",
+                                 command=lambda pid=pid: prop_det_open(pid))
+                view_btn.pack(pady=2, fill=X)
 
-             
-             rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
-                                   bootstyle=INFO,
-                                   command=lambda pid=pid: rent_buy_property(pid))
-             rent_buy_btn.pack(pady=2, fill=X)
+                rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy", bootstyle=INFO,
+                                     command=lambda pid=pid: rent_buy_property(pid))
+                rent_buy_btn.pack(pady=2, fill=X)
 
-         except Exception as e:
-             
-             messagebox.showerror("Database Error", f"An error occurred: {str(e)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load favorites: {str(e)}")
+
 
     # Function to show rented/bought properties
     def show_my_properties():
@@ -1915,7 +1968,9 @@ def tenant_dashboard_open():
             btn_frame = tb.Frame(prop_frame)
             btn_frame.pack(side=RIGHT, padx=10)
 
-            
+           # view_btn = tb.Button(btn_frame, text="View Details",
+            #                   command=view_prop)
+            #view_btn.pack(pady=2, fill=X)
 
     # Initialize with all properties
     update_tenant_properties()
