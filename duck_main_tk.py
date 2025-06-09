@@ -32,6 +32,16 @@ CREATE TABLE IF NOT EXISTS interested_users (
 """)
 mycon.commit()
 
+# Add this near your other table creation code
+try:
+    cursor.execute("ALTER TABLE properties ADD COLUMN lease_duration VARCHAR(20)")
+    mycon.commit()
+except mys.errors.ProgrammingError as e:
+    if "Duplicate column name" in str(e):
+        pass  # Column already exists
+    else:
+        raise
+
 # make sure 'transaction_type' column exists in the table
 try:
     cursor.execute("ALTER TABLE interested_users ADD COLUMN transaction_type VARCHAR(20)")
@@ -41,9 +51,6 @@ except mys.errors.ProgrammingError as e:
         pass  # Column already exists: ignore
     else:
         raise  # Raise unexpected errors
-
-
-
 
 
 
@@ -793,6 +800,28 @@ def post_prop_open():
     sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
     sell_lease = tk.StringVar()
+    
+    # Define this function to handle lease/rent choice
+    def update_lease_duration_state():
+        if sell_lease.get() == "LEASE":
+            lease_duration_combo.configure(state="readonly")
+        else:
+            lease_duration_combo.set('')  # clear the selection
+            lease_duration_combo.configure(state="disabled")
+
+# Radiobuttons for SELL or LEASE
+        sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info", command=update_lease_duration_state)
+        sell.grid(row=0, column=1, padx=10, pady=5)
+        lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info", command=update_lease_duration_state)
+        lease.grid(row=0, column=2, padx=10, pady=5)
+
+# Lease Duration
+        tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+
+        lease_duration_var = tk.StringVar()
+        lease_duration_combo = tb.Combobox(Price_frame, bootstyle="primary", values=lease_duration_list, width=40, textvariable=lease_duration_var, state="disabled")  # initially disabled
+        lease_duration_combo.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
@@ -876,13 +905,26 @@ def post_prop_open():
     price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
-
-    '''# Lease Duration
+    
+# Lease Duration (as ComboBox for LEASE only)
     tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-    lease_duration_entry = tb.Entry(Price_frame, width=40)
-    lease_duration_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
 
-    # Extra Bills
+    lease_duration_list = [
+    "9 Months",
+    "12 Months (1 Year)",
+    "18 Months",
+    "24 Months (2 Years)",
+    "3 Years",
+    "5 Years",
+    "10 Years"]
+
+    lease_duration_var = tk.StringVar()
+    lease_duration_combo = tb.Combobox(Price_frame, bootstyle="primary", values=lease_duration_list, width=40, textvariable=lease_duration_var, state="disabled")  # initially disabled
+    lease_duration_combo.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+
+      
+
+    '''# Extra Bills
     tb.Label(Price_frame, text="Extra Bills:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
     extra_bills_entry = tb.Entry(Price_frame, width=40)
     extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)'''
@@ -951,9 +993,13 @@ def post_prop_open():
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get()
+        # Get lease duration if property is LEASE
+        p_lease_duration = lease_duration_var.get() if sell_lease.get() == "LEASE" else None
+
         
         
-        query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
+        
+        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk, lease_duration) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk}, {f"'{p_lease_duration}'" if p_lease_duration else "NULL"})"""
         cursor.execute(query)
         mycon.commit()
         
@@ -1009,6 +1055,7 @@ def post_prop_open():
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 
 def prop_det_open(pid):
+    
     # 1. Verify property exists first
     cursor.execute("SELECT 1 FROM properties WHERE property_id = %s", (pid,))
     if not cursor.fetchone():
@@ -1079,9 +1126,19 @@ def prop_det_open(pid):
         images = ["default.jpg"]
 
     cursor.execute(f"select * from properties where property_id = '{pid}'")
-    (property_id, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
+    (property_id, _, property_category, location_city, title, address, rent_price, bhk, _) = cursor.fetchone()
     cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
-    (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
+    det_row = cursor.fetchone()
+
+    if det_row:
+        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
+    else:
+        area_sqft = "N/A"
+        furnishing_details = "N/A"
+        parking_availability = "N/A"
+        age_of_property = "N/A"
+        description = "N/A"
+
     cursor.execute(f"select * from loc where city = '{location_city}'")
     (state, _) = cursor.fetchone()
 
@@ -1117,6 +1174,16 @@ def prop_det_open(pid):
     add_row("Furnishing details:", furnishing_details, 5)
     add_row("Parking availability:", parking_availability, 6)
     add_row("Age of property:", f"{age_of_property} years", 7)
+    if pid.startswith("L"):  # Only for Lease properties
+        try:
+            cursor.execute("SELECT lease_duration FROM properties WHERE property_id = %s", (pid,))
+            lease_dur = cursor.fetchone()
+            lease_dur_val = lease_dur[0] if lease_dur and lease_dur[0] else "N/A"
+        except Exception as e:
+            lease_dur_val = "N/A"
+
+        add_row("Lease Duration:", lease_dur_val, 8)
+
 
     tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
     tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
@@ -1330,6 +1397,9 @@ def my_tent_open():
                 p_desc = desc.get()
                 p_price = price_entry.get()
                 
+                p_lease_duration = lease_duration_var.get() if sell_lease.get() == "LEASE" else None
+
+                
                 
                 query = f"update properties set property_category = '{p_cat}', location_city = '{p_loc}', title = '{p_tit}', address = '{p_add}', rent_price = {p_price}, bhk = {p_bhk} where property_id = '{pid}'"
                 cursor.execute(query)
@@ -1433,7 +1503,7 @@ def my_tent_open():
 
         # Property data
         cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
-        (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
+        (_, _, property_category, location_city, title, address, rent_price, bhk, p_lease_duration) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM res_prop_det WHERE property_id = '{pid}'")
         (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM loc WHERE city = '{location_city}'")
@@ -1472,6 +1542,22 @@ def my_tent_open():
         add_row("Furnishing details:", furnishing_details, 5)
         add_row("Parking availability:", parking_availability, 6)
         add_row("Age of property:", f"{age_of_property} years", 7)
+        
+        if pid.startswith("L"):  # Only for Lease properties
+            
+            try:
+                
+                cursor.execute("SELECT lease_duration FROM properties WHERE property_id = %s", (pid,))
+                lease_dur = cursor.fetchone()
+                lease_dur_val = lease_dur[0] if lease_dur and lease_dur[0] else "N/A"
+            except Exception as e:
+                
+                lease_dur_val = "N/A"
+
+            add_row("Lease Duration:", lease_dur_val, 8)
+
+        
+        
 
         tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
         tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
@@ -1583,13 +1669,14 @@ def tenant_dashboard_open():
     # Price range filter
     tb.Label(filter_frame, text="Price Range:").pack(pady=5)
     price_ranges = [
-        "All Prices",
-        "Under ₹50,000",
-        "₹50,000 - ₹1,00,000",
-        "₹1,00,000 - ₹5,00,000",
-        "₹5,00,000 - ₹10,00,000",
-        "Above ₹10,00,000"
-    ]
+    "All Prices",
+    "Under ₹20,000,000",
+    "₹20,000,000 - ₹50,000,000",
+    "₹50,000,000 - ₹100,000,000",
+    "₹100,000,000 - ₹200,000,000",
+    "₹200,000,000 - ₹400,000,000",
+    "Above ₹400,000,000"]
+    
     price_combo = tb.Combobox(filter_frame, values=price_ranges, state="readonly")
     price_combo.pack(pady=5)
     price_combo.current(0)
@@ -1671,17 +1758,19 @@ def tenant_dashboard_open():
             query += f" AND p.location_city = '{loc_filter}'"
 
         # Apply price filter
-        if price_filter == "Under ₹50,000":
-            query += " AND p.rent_price < 50000"
-        elif price_filter == "₹50,000 - ₹1,00,000":
-            query += " AND p.rent_price BETWEEN 50000 AND 100000"
-        elif price_filter == "₹1,00,000 - ₹5,00,000":
-            query += " AND p.rent_price BETWEEN 100000 AND 500000"
-        elif price_filter == "₹5,00,000 - ₹10,00,000":
-            query += " AND p.rent_price BETWEEN 500000 AND 1000000"
-        elif price_filter == "Above ₹10,00,000":
-            query += " AND p.rent_price > 1000000"
-
+        if price_filter == "Under ₹20,000,000":
+            query += " AND p.rent_price < 20000000"
+        elif price_filter == "₹20,000,000 - ₹50,000,000":
+            query += " AND p.rent_price BETWEEN 20000000 AND 50000000"
+        elif price_filter == "₹50,000,000 - ₹100,000,000":
+            query += " AND p.rent_price BETWEEN 50000000 AND 100000000"
+        elif price_filter == "₹100,000,000 - ₹200,000,000":
+            query += " AND p.rent_price BETWEEN 100000000 AND 200000000"
+        elif price_filter == "₹200,000,000 - ₹400,000,000":
+            query += " AND p.rent_price BETWEEN 200000000 AND 400000000"
+        elif price_filter == "Above ₹400,000,000":
+            query += " AND p.rent_price > 400000000"
+    
         query += """
     GROUP BY
         p.property_id,
@@ -1780,31 +1869,34 @@ def tenant_dashboard_open():
             messagebox.showerror("Database Error", f"Failed to update favorites: {err}")
     
     # Function to handle rent/buy action
-    def rent_buy_property(property_id, transaction_type):
-        
-    # Ask for confirmation
-        confirm = messagebox.askyesno("Confirm Interest", "Are you interested in this property?")
-        if not confirm:
+    def rent_buy_property(property_id,transaction_type):
+    # Ask the user whether they want to Rent or Buy
+        choice = messagebox.askquestion("Rent or Buy", "Are you interested in **Renting** or **Buying** this property?", icon='question', type='yesnocancel', default='yes', detail="Click 'Yes' for Rent, 'No' for Buy, or Cancel to abort.")
+
+        if choice == "cancel":
             return
+        elif choice == "yes":
+            transaction_type = "Rent"
+        elif choice == "no":
+            transaction_type = "Buy"
 
         try:
-        # Insert the interest if not already added
+        # Insert the interest with proper padding (if needed)
             property_id_padded = property_id.ljust(10)
-            print(f"[DEBUG] INSERTING: tenant_username={pfp_user_email}, property_id='[{property_id}]', length={len(property_id)}")
+            print(f"[DEBUG] INSERTING: tenant_username={pfp_user_email}, property_id='[{property_id}]', transaction_type={transaction_type}")
 
             cursor.execute("""
             INSERT IGNORE INTO interested_users (tenant_username, property_id, transaction_type)
-            VALUES (%s, %s, %s)
-        """, (pfp_user_email, property_id_padded, transaction_type))
+            VALUES (%s, %s, %s) """, (pfp_user_email, property_id_padded, transaction_type))
             mycon.commit()
-            
 
         # Show success message
-            messagebox.showinfo("Success", "Your interest has been shared with the owner.\nThey may contact you soon.")
+            messagebox.showinfo("Success", f"You've chosen to **{transaction_type}** this property.\nYour interest has been shared with the owner.")
+
         except Exception as e:
-        # Show error if something goes wrong
             messagebox.showerror("Error", f"Could not contact the owner.\n\nReason: {e}")
-            
+
+
          
 
     # Function to show favorite properties
