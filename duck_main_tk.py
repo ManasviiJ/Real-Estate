@@ -63,6 +63,8 @@ main_frame=tb.Frame(root)
 
 profile_frame = tb.Frame(root)
 
+prop_detail_frame = tb.Frame(root)
+
 post_prop_frame = tb.Frame(root)
 
 my_tent_frame = tb.Frame(root)
@@ -343,10 +345,6 @@ def show_password():
 
 
 
-
-
-
-
 # >>>>>>>>>>>>>>>>> THE LOGIN FRAME UI <<<<<<<<<<<<<<<<
 
 tb.Label(login_frame,text="Login or Sign Up", font=("Verdana", 24)).pack(side=TOP, pady=10 )
@@ -398,12 +396,9 @@ sidebar = tb.Frame(main_frame, width=0, height=750)
 sidebar.grid(row=0,column=0,sticky=NW, rowspan=3)
 
 # COMMON Functions   
-def back_to_main_frame(oldFrame, newFrame, true_false=False):
+def back_to_main_frame(oldFrame, newFrame):
     oldFrame.pack_forget()
-    if true_false:
-        oldFrame.destroy()
     newFrame.pack(expand=TRUE,fill=BOTH)
-    
 
 def new_frame_open(newFrame, oldFrame):
     oldFrame.pack_forget()
@@ -488,8 +483,6 @@ search_entry.bind("<KeyRelease>", suggest_places)
 # Listbox for suggestions
 listbox = tk.Listbox(search_entry_frame)
 listbox.bind("<<ListboxSelect>>", entry_fill)
-
-
 
 
 
@@ -803,32 +796,22 @@ def post_prop_open():
     sell_lease = tk.StringVar()
     
     # Define this function to handle lease/rent choice
+    
     def update_lease_duration_state():
         if sell_lease.get() == "LEASE":
             lease_duration_combo.configure(state="readonly")
         else:
-            lease_duration_combo.set('')  # clear the selection
+            lease_duration_combo.set('')
             lease_duration_combo.configure(state="disabled")
 
-# Radiobuttons for SELL or LEASE
-        sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info", command=update_lease_duration_state)
-        sell.grid(row=0, column=1, padx=10, pady=5)
-        lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info", command=update_lease_duration_state)
-        lease.grid(row=0, column=2, padx=10, pady=5)
-
-# Lease Duration
-        tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-
-        lease_duration_var = tk.StringVar()
-        lease_duration_combo = tb.Combobox(Price_frame, bootstyle="primary", values=lease_duration_list, width=40, textvariable=lease_duration_var, state="disabled")  # initially disabled
-        lease_duration_combo.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+        
 
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
-    sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info")
+    sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info", command=update_lease_duration_state)
     sell.grid(row=0, column=1, padx=10, pady=5)
-    lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
+    lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info", command=update_lease_duration_state)
     lease.grid(row=0, column=2, padx=10, pady=5)
 
     # PROPERTY TYPE
@@ -902,7 +885,7 @@ def post_prop_open():
     Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
     # Price/Rent
-    price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+    price = tb.Label(Price_frame, text="Price:", font=("Montserrat", 12))
     price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
@@ -1064,7 +1047,6 @@ def prop_det_open(pid):
         return
 
     # 2. Only proceed if valid
-    prop_detail_frame = tb.Frame(root)
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
@@ -1076,7 +1058,7 @@ def prop_det_open(pid):
               command=lambda: rent_buy_property(pid, "Rent")).grid(row=3, column=1, pady=10)
 
 
-    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame, True)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     query = """
@@ -1128,7 +1110,7 @@ def prop_det_open(pid):
         images = ["default.jpg"]
 
     cursor.execute(f"select * from properties where property_id = '{pid}'")
-    (property_id, _, property_category, location_city, title, address, rent_price, bhk, _) = cursor.fetchone()
+    (property_id, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
     cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
     det_row = cursor.fetchone()
 
@@ -1198,6 +1180,10 @@ def prop_det_open(pid):
 
 def my_tent_open():
     def see_prop(pid):
+        
+        
+
+        
 
         def delete_prop():
             if messagebox.askyesno("Confirm", "Are you sure you want to remove this property? You will not be able to recover your property again."):
@@ -1231,7 +1217,16 @@ def my_tent_open():
             cursor.execute(f"select * from properties where property_id = '{pid}'")
             (_, _, pcat, eloc, etit, ead, erp, ebhk) = cursor.fetchone()
             cursor.execute(f"select * from res_prop_Det where property_id = '{pid}'")
-            (_, _, ear, efur, epar, eage, edesc) = cursor.fetchone()
+            det_row = cursor.fetchone()
+
+            if det_row:
+                (_, _, ear, efur, epar, eage, edesc) = det_row
+            else:
+                ear = "N/A"
+                efur = "N/A"
+                epar = "N/A"
+                eage = "N/A"
+                edesc = "N/A"
             cursor.execute(f"select image_path from res_prop_img where property_id = '{pid}'")
             ii = cursor.fetchall()
             fp = []
@@ -1333,7 +1328,7 @@ def my_tent_open():
             Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
             # Price/Rent
-            price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+            price = tb.Label(Price_frame, text="Price:", font=("Montserrat", 12))
             price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
             deft7 = tb.StringVar(value=erp)
             price_entry = tb.Entry(Price_frame, width=40, textvariable=deft7)
@@ -1502,12 +1497,36 @@ def my_tent_open():
                 toggle_btn.config(text="Hide Sidebar")
 
         toggle_btn.config(command=toggle_sidebar)
+        
+        
+        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
+        det_row = cursor.fetchone()
 
+        if det_row:
+            (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
+        else:
+            area_sqft = "N/A"
+            furnishing_details = "N/A"
+            parking_availability = "N/A"
+            age_of_property = "N/A"
+            description = "N/A"
+            
         # Property data
         cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
         (_, _, property_category, location_city, title, address, rent_price, bhk, p_lease_duration) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM res_prop_det WHERE property_id = '{pid}'")
-        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
+        det_row = cursor.fetchone()
+
+        if det_row:
+            (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
+        else:
+            area_sqft = "N/A"
+            furnishing_details = "N/A"
+            parking_availability = "N/A"
+            age_of_property = "N/A"
+            description = "N/A"
+
+    
         cursor.execute(f"SELECT * FROM loc WHERE city = '{location_city}'")
         (state, _) = cursor.fetchone()
 
