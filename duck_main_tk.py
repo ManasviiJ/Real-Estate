@@ -398,9 +398,12 @@ sidebar = tb.Frame(main_frame, width=0, height=750)
 sidebar.grid(row=0,column=0,sticky=NW, rowspan=3)
 
 # COMMON Functions   
-def back_to_main_frame(oldFrame, newFrame):
+def back_to_main_frame(oldFrame, newFrame, true_false=False):
     oldFrame.pack_forget()
+    if true_false:
+        oldFrame.destroy()
     newFrame.pack(expand=TRUE,fill=BOTH)
+    
 
 def new_frame_open(newFrame, oldFrame):
     oldFrame.pack_forget()
@@ -1073,7 +1076,7 @@ def prop_det_open(pid):
               command=lambda: rent_buy_property(pid, "Rent")).grid(row=3, column=1, pady=10)
 
 
-    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
+    tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame, True)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
 
     query = """
