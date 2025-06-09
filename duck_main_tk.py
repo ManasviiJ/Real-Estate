@@ -63,8 +63,6 @@ main_frame=tb.Frame(root)
 
 profile_frame = tb.Frame(root)
 
-prop_detail_frame = tb.Frame(root)
-
 post_prop_frame = tb.Frame(root)
 
 my_tent_frame = tb.Frame(root)
@@ -1063,6 +1061,7 @@ def prop_det_open(pid):
         return
 
     # 2. Only proceed if valid
+    prop_detail_frame = tb.Frame(root)
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
