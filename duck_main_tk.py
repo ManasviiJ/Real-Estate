@@ -17,7 +17,7 @@ root.geometry('1600x1400')
 root.title("Real Estate Management")
 
 # Connecting MySQL to Python Interface
-mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
+mycon = mys.connect(host="localhost", user="root", passwd="root112", database="re_estate")
 cursor = mycon.cursor()
 
 # make sure 'interested_users' table exists
@@ -32,15 +32,6 @@ CREATE TABLE IF NOT EXISTS interested_users (
 """)
 mycon.commit()
 
-# Add this near your other table creation code
-try:
-    cursor.execute("ALTER TABLE properties ADD COLUMN lease_duration VARCHAR(20)")
-    mycon.commit()
-except mys.errors.ProgrammingError as e:
-    if "Duplicate column name" in str(e):
-        pass  # Column already exists
-    else:
-        raise
 
 # make sure 'transaction_type' column exists in the table
 try:
@@ -345,6 +336,10 @@ def show_password():
 
 
 
+
+
+
+
 # >>>>>>>>>>>>>>>>> THE LOGIN FRAME UI <<<<<<<<<<<<<<<<
 
 tb.Label(login_frame,text="Login or Sign Up", font=("Verdana", 24)).pack(side=TOP, pady=10 )
@@ -488,6 +483,8 @@ listbox.bind("<<ListboxSelect>>", entry_fill)
 
 
 
+
+
 # >>>>> The PROPERTY FRAME
 
 def create_property_frame(property_data, parent_frame, index):
@@ -603,8 +600,7 @@ def edit_profile():
         # Open file dialog to select image
         file_path = filedialog.askopenfilename(
             title="Select Profile Picture",
-            filetypes=[("Image Files", ".png;.jpg;.jpeg;.gif;*.bmp")]
-        )
+            filetypes=[("Image Files", ".png;.jpg;.jpeg;.gif;*.bmp")])
         
         if file_path:  # If a file was selected
             profile_img_path = os.path.relpath(file_path)
@@ -756,7 +752,6 @@ def edit_profile():
     
     
     
-    
 # PROFILE PAGE UI 
 
 pfp_btn_frame = tb.Frame(profile_frame)
@@ -772,9 +767,6 @@ tb.Label(profile_frame, text="Full name:", font=("Arial bold",12)).grid(row=2,co
 tb.Label(profile_frame, text="Email Address:", font=("Arial bold",12)).grid(row=3,column=2,padx=(20,0),pady=20,sticky=W)
 tb.Label(profile_frame, text="Phone:", font=("Arial bold",12)).grid(row=4,column=2,padx=(20,0),pady=20,sticky=W)
 tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=2,padx=(20,0),pady=20,sticky=W)
-
-
-
 
 
 
@@ -795,23 +787,13 @@ def post_prop_open():
 
     sell_lease = tk.StringVar()
     
-    # Define this function to handle lease/rent choice
-    
-    def update_lease_duration_state():
-        if sell_lease.get() == "LEASE":
-            lease_duration_combo.configure(state="readonly")
-        else:
-            lease_duration_combo.set('')
-            lease_duration_combo.configure(state="disabled")
-
-        
-
+  
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
-    sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info", command=update_lease_duration_state)
+    sell = tb.Radiobutton(sf2, text="SELL", variable=sell_lease, value="SELL", bootstyle="info")
     sell.grid(row=0, column=1, padx=10, pady=5)
-    lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info", command=update_lease_duration_state)
+    lease = tb.Radiobutton(sf2, text="LEASE", variable=sell_lease, value="LEASE", bootstyle="info")
     lease.grid(row=0, column=2, padx=10, pady=5)
 
     # PROPERTY TYPE
@@ -890,22 +872,6 @@ def post_prop_open():
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
     
-# Lease Duration (as ComboBox for LEASE only)
-    tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
-
-    lease_duration_list = [
-    "9 Months",
-    "12 Months (1 Year)",
-    "18 Months",
-    "24 Months (2 Years)",
-    "3 Years",
-    "5 Years",
-    "10 Years"]
-
-    lease_duration_var = tk.StringVar()
-    lease_duration_combo = tb.Combobox(Price_frame, bootstyle="primary", values=lease_duration_list, width=40, textvariable=lease_duration_var, state="disabled")  # initially disabled
-    lease_duration_combo.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
-
       
 
     '''# Extra Bills
@@ -976,14 +942,9 @@ def post_prop_open():
         p_park = park.get()
         p_age = age.get()
         p_desc = desc.get()
-        p_price = price_entry.get()
-        # Get lease duration if property is LEASE
-        p_lease_duration = lease_duration_var.get() if sell_lease.get() == "LEASE" else None
-
+        p_price = price_entry.get() 
         
-        
-        
-        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk, lease_duration) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk}, {f"'{p_lease_duration}'" if p_lease_duration else "NULL"})"""
+        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk}')"""
         cursor.execute(query)
         mycon.commit()
         
@@ -1030,11 +991,6 @@ def post_prop_open():
             if serial>9999:
                 raise Exception("Property ID couldnt be generated after 9999 attempts")
                 
-        
-      
-    
-
-
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 
@@ -1158,15 +1114,7 @@ def prop_det_open(pid):
     add_row("Furnishing details:", furnishing_details, 5)
     add_row("Parking availability:", parking_availability, 6)
     add_row("Age of property:", f"{age_of_property} years", 7)
-    if pid.startswith("L"):  # Only for Lease properties
-        try:
-            cursor.execute("SELECT lease_duration FROM properties WHERE property_id = %s", (pid,))
-            lease_dur = cursor.fetchone()
-            lease_dur_val = lease_dur[0] if lease_dur and lease_dur[0] else "N/A"
-        except Exception as e:
-            lease_dur_val = "N/A"
-
-        add_row("Lease Duration:", lease_dur_val, 8)
+    
 
 
     tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
@@ -1394,10 +1342,8 @@ def my_tent_open():
                 p_desc = desc.get()
                 p_price = price_entry.get()
                 
-                p_lease_duration = lease_duration_var.get() if sell_lease.get() == "LEASE" else None
-
-                
-                
+    
+    
                 query = f"update properties set property_category = '{p_cat}', location_city = '{p_loc}', title = '{p_tit}', address = '{p_add}', rent_price = {p_price}, bhk = {p_bhk} where property_id = '{pid}'"
                 cursor.execute(query)
                 mycon.commit()
@@ -1513,7 +1459,7 @@ def my_tent_open():
             
         # Property data
         cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
-        (_, _, property_category, location_city, title, address, rent_price, bhk, p_lease_duration) = cursor.fetchone()
+        (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM res_prop_det WHERE property_id = '{pid}'")
         det_row = cursor.fetchone()
 
@@ -1564,19 +1510,6 @@ def my_tent_open():
         add_row("Parking availability:", parking_availability, 6)
         add_row("Age of property:", f"{age_of_property} years", 7)
         
-        if pid.startswith("L"):  # Only for Lease properties
-            
-            try:
-                
-                cursor.execute("SELECT lease_duration FROM properties WHERE property_id = %s", (pid,))
-                lease_dur = cursor.fetchone()
-                lease_dur_val = lease_dur[0] if lease_dur and lease_dur[0] else "N/A"
-            except Exception as e:
-                
-                lease_dur_val = "N/A"
-
-            add_row("Lease Duration:", lease_dur_val, 8)
-
         
         
 
