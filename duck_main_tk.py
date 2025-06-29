@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 import mysql.connector as mys
 import os
 
+
 #BEFORE RUNNING THIS CODE..DROP YOUR DATABASE,CREATE IT AGAIN AND SOURCE YOUR DUMP FILE(dump20250414)
 
 # >>>>>>>>>>>>>>>> Define the main window <<<<<<<<<<<<<<<<
@@ -871,7 +872,7 @@ def post_prop_open():
     Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
     # Price/Rent
-    price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+    price = tb.Label(Price_frame, text="Price:", font=("Montserrat", 12))
     price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
@@ -1229,13 +1230,11 @@ def my_tent_open():
 
             # Parking Availability
             tb.Label(Prop_dets_frame, text="Parking Availability", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
-            if epar:
-                park = True
-            else:
-                park = False
-            Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=1, bootstyle="info")
+            park = tk.BooleanVar(value=bool(epar))
+            
+            Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=True, bootstyle="info")
             Yes.grid(row=6, column=1, padx=10, pady=10)
-            No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=0, bootstyle="info")
+            No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=False, bootstyle="info")
             No.grid(row=6, column=2, padx=10, pady=10)
 
             # Age of Property
