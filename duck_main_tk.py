@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 import mysql.connector as mys
 import os
 
+#BEFORE RUNNING THIS CODE..DROP YOUR DATABASE,CREATE IT AGAIN AND SOURCE YOUR DUMP FILE(dump20250414)
 
 # >>>>>>>>>>>>>>>> Define the main window <<<<<<<<<<<<<<<<
 root = tb.Window(themename="cyborg")
@@ -19,6 +20,7 @@ root.title("Real Estate Management")
 # Connecting MySQL to Python Interface
 mycon = mys.connect(host="localhost", user="root", passwd="root", database="re_estate")
 cursor = mycon.cursor()
+
 
 # make sure 'interested_users' table exists
 cursor.execute("""
@@ -42,7 +44,6 @@ except mys.errors.ProgrammingError as e:
         pass  # Column already exists: ignore
     else:
         raise  # Raise unexpected errors
-
 
 
 
@@ -598,7 +599,8 @@ def edit_profile():
         # Open file dialog to select image
         file_path = filedialog.askopenfilename(
             title="Select Profile Picture",
-            filetypes=[("Image Files", ".png;.jpg;.jpeg;.gif;*.bmp")])
+            filetypes=[("Image Files", ".png;.jpg;.jpeg;.gif;*.bmp")]
+        )
         
         if file_path:  # If a file was selected
             profile_img_path = os.path.relpath(file_path)
@@ -678,7 +680,7 @@ def edit_profile():
             return
 
         if new_phone is not None:
-            if new_phone.isdigit() and len(new_phone) <= 10:
+            if new_phone.isdigit() and len(new_phone) == 10:
                 cursor.execute("UPDATE users SET phone = %s WHERE username = %s", (new_phone, pfp_user_email))
                 mycon.commit()
             else:
@@ -750,6 +752,7 @@ def edit_profile():
     
     
     
+    
 # PROFILE PAGE UI 
 
 pfp_btn_frame = tb.Frame(profile_frame)
@@ -769,6 +772,9 @@ tb.Label(profile_frame, text="Role:", font=("Arial bold",12)).grid(row=5,column=
 
 
 
+
+
+
 # >>>>>>>>>>>>>>>> POST PROP FRAME <<<<<<<<<<<<<<<<
 def post_prop_open():
     new_frame_open(post_prop_frame, main_frame)
@@ -784,8 +790,6 @@ def post_prop_open():
     sf2.grid(row=1, column=2, columnspan=3, padx=20, pady=20, sticky=W)
 
     sell_lease = tk.StringVar()
-    
-  
 
     # SELL OR LEASE
     tb.Label(sf2, text="SELL OR LEASE:", font=("Montserrat", 14, "bold")).grid(row=0, column=0, pady=15, sticky=tk.W)
@@ -865,14 +869,17 @@ def post_prop_open():
     Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
     # Price/Rent
-    price = tb.Label(Price_frame, text="Price:", font=("Montserrat", 12))
+    price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
     price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
-    
-      
 
-    '''# Extra Bills
+    '''# Lease Duration
+    tb.Label(Price_frame, text="Lease Duration:", font=("Montserrat", 12)).grid(column=0, row=1, sticky=tk.W, padx=20, pady=10)
+    lease_duration_entry = tb.Entry(Price_frame, width=40)
+    lease_duration_entry.grid(column=1, row=1, padx=10, pady=10, sticky=tk.EW)
+
+    # Extra Bills
     tb.Label(Price_frame, text="Extra Bills:", font=("Montserrat", 12)).grid(column=0, row=2, sticky=tk.W, padx=20, pady=10)
     extra_bills_entry = tb.Entry(Price_frame, width=40)
     extra_bills_entry.grid(column=1, row=2, padx=10, pady=10, sticky=tk.EW)'''
@@ -942,9 +949,10 @@ def post_prop_open():
         p_park = park
         p_age = age.get()
         p_desc = desc.get()
-        p_price = price_entry.get() 
+        p_price = price_entry.get()
         
-        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"""
+        
+        query = f"insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"
         cursor.execute(query)
         mycon.commit()
         
@@ -991,11 +999,15 @@ def post_prop_open():
             if serial>9999:
                 raise Exception("Property ID couldnt be generated after 9999 attempts")
                 
+        
+      
+    
+
+
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 
-def prop_det_open(pid,fr=profile_frame,t=False):
-    # gave fr as profile frame (has no roel) cuz it isnt required it is dummy
+def prop_det_open(pid):
     # 1. Verify property exists first
     cursor.execute("SELECT 1 FROM properties WHERE property_id = %s", (pid,))
     if not cursor.fetchone():
@@ -1010,6 +1022,11 @@ def prop_det_open(pid,fr=profile_frame,t=False):
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
     cursor.execute("SELECT role FROM users WHERE username = %s", (pfp_user_email,))
     user_role = cursor.fetchone()[0]
+
+    if user_role == "Tenant":
+        tb.Button(pdet_btn_frame, text="Rent/Buy", bootstyle=SUCCESS,
+              command=lambda: rent_buy_property(pid, "Rent")).grid(row=3, column=1, pady=10)
+    
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
@@ -1065,17 +1082,7 @@ def prop_det_open(pid,fr=profile_frame,t=False):
     cursor.execute(f"select * from properties where property_id = '{pid}'")
     (property_id, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
     cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
-    det_row = cursor.fetchone()
-
-    if det_row:
-        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
-    else:
-        area_sqft = "N/A"
-        furnishing_details = "N/A"
-        parking_availability = "N/A"
-        age_of_property = "N/A"
-        description = "N/A"
-
+    (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
     cursor.execute(f"select * from loc where city = '{location_city}'")
     (state, _) = cursor.fetchone()
 
@@ -1111,13 +1118,10 @@ def prop_det_open(pid,fr=profile_frame,t=False):
     add_row("Furnishing details:", furnishing_details, 5)
     add_row("Parking availability:", parking_availability, 6)
     add_row("Age of property:", f"{age_of_property} years", 7)
-    
-
 
     tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
     tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
 
-    
 
 
 
@@ -1125,10 +1129,6 @@ def prop_det_open(pid,fr=profile_frame,t=False):
 
 def my_tent_open():
     def see_prop(pid):
-        
-        
-
-        
 
         def delete_prop():
             if messagebox.askyesno("Confirm", "Are you sure you want to remove this property? You will not be able to recover your property again."):
@@ -1162,16 +1162,7 @@ def my_tent_open():
             cursor.execute(f"select * from properties where property_id = '{pid}'")
             (_, _, pcat, eloc, etit, ead, erp, ebhk) = cursor.fetchone()
             cursor.execute(f"select * from res_prop_Det where property_id = '{pid}'")
-            det_row = cursor.fetchone()
-
-            if det_row:
-                (_, _, ear, efur, epar, eage, edesc) = det_row
-            else:
-                ear = "N/A"
-                efur = "N/A"
-                epar = "N/A"
-                eage = "N/A"
-                edesc = "N/A"
+            (_, _, ear, efur, epar, eage, edesc) = cursor.fetchone()
             cursor.execute(f"select image_path from res_prop_img where property_id = '{pid}'")
             ii = cursor.fetchall()
             fp = []
@@ -1339,8 +1330,7 @@ def my_tent_open():
                 p_desc = desc.get()
                 p_price = price_entry.get()
                 
-    
-    
+                
                 query = f"update properties set property_category = '{p_cat}', location_city = '{p_loc}', title = '{p_tit}', address = '{p_add}', rent_price = {p_price}, bhk = {p_bhk} where property_id = '{pid}'"
                 cursor.execute(query)
                 mycon.commit()
@@ -1393,14 +1383,14 @@ def my_tent_open():
         toggle_btn = tb.Button(f1, text="Hide Sidebar", bootstyle=SUCCESS)
         toggle_btn.grid(row=2, column=2, pady=10, sticky="n")
 
-        # User sidebar in a ScrolledFrame to prevent overflow
+       # User sidebar in a ScrolledFrame to prevent overflow
         user_sidebar = ScrolledFrame(f1, width=350, height=600)
         user_sidebar.grid(row=3, column=2, sticky="ns", padx=(10, 10), pady=(0, 10))
         user_sidebar.grid_propagate(False)
 
         f1_user_frame = user_sidebar.container
         tb.Label(f1_user_frame, text="Users who are\ncurrently interested in your property", font=("Montserrat", 12)).grid(row=0, column=0, pady=10)
-        
+
         print(f"[DEBUG] see_prop() called with pid='{pid}'")
 
 # Show all interested_users for this property, using TRIM to handle space issue
@@ -1428,9 +1418,6 @@ def my_tent_open():
                 tb.Label(f1_user_frame, text=f"{i}. {name}\n📧 {username}\n📞 {phone}\nTransaction: {transaction_type}", wraplength=300, justify="left").grid(row=i, column=0, padx=10, pady=5, sticky=W)
 
                 
-        
-        
-        # Toggle logic
         def toggle_sidebar():
             if user_sidebar.winfo_ismapped():
                 user_sidebar.grid_remove()
@@ -1440,36 +1427,12 @@ def my_tent_open():
                 toggle_btn.config(text="Hide Sidebar")
 
         toggle_btn.config(command=toggle_sidebar)
-        
-        
-        cursor.execute(f"select * from res_prop_det where property_id = '{pid}'")
-        det_row = cursor.fetchone()
 
-        if det_row:
-            (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
-        else:
-            area_sqft = "N/A"
-            furnishing_details = "N/A"
-            parking_availability = "N/A"
-            age_of_property = "N/A"
-            description = "N/A"
-            
         # Property data
         cursor.execute(f"SELECT * FROM properties WHERE property_id = '{pid}'")
         (_, _, property_category, location_city, title, address, rent_price, bhk) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM res_prop_det WHERE property_id = '{pid}'")
-        det_row = cursor.fetchone()
-
-        if det_row:
-            (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = det_row
-        else:
-            area_sqft = "N/A"
-            furnishing_details = "N/A"
-            parking_availability = "N/A"
-            age_of_property = "N/A"
-            description = "N/A"
-
-    
+        (_, _, area_sqft, furnishing_details, parking_availability, age_of_property, description) = cursor.fetchone()
         cursor.execute(f"SELECT * FROM loc WHERE city = '{location_city}'")
         (state, _) = cursor.fetchone()
 
@@ -1506,9 +1469,6 @@ def my_tent_open():
         add_row("Furnishing details:", furnishing_details, 5)
         add_row("Parking availability:", parking_availability, 6)
         add_row("Age of property:", f"{age_of_property} years", 7)
-        
-        
-        
 
         tb.Label(sf3.container, text="Description:", font=("Montserrat", 12)).grid(column=1, row=8, sticky="w", padx=20, pady=10)
         tb.Label(sf3.container, text=description, font=("Montserrat", 12), wraplength=600, justify="left").grid(column=2, row=8, sticky="w", padx=20, pady=10)
@@ -1786,11 +1746,11 @@ def tenant_dashboard_open():
             view_btn = tb.Button(btn_frame, text="View Details",
                                command=lambda pid=pid: prop_det_open(pid,tenant_frame,True))
             view_btn.pack(pady=2, fill=X)
-            t="Buy" if pid.startswith("S") else "Rent"
 
             rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
                                    bootstyle=INFO,
-                                   command=lambda pid=pid,typ=t: rent_buy_property(pid,typ))
+                                   command=lambda pid=pid: rent_buy_property(pid, "Rent" if pid.startswith("L") else "Buy"))
+
             rent_buy_btn.pack(pady=2, fill=X)
 
     # Function to toggle favorite status
@@ -1818,7 +1778,6 @@ def tenant_dashboard_open():
         except mys.Error as err:
             
             messagebox.showerror("Database Error", f"Failed to update favorites: {err}")
-    
     # Function to handle rent/buy action
     def rent_buy_property(property_id,transaction_type):
     # Ask the user whether they want to Rent or Buy
@@ -1847,9 +1806,6 @@ def tenant_dashboard_open():
         except Exception as e:
             messagebox.showerror("Error", f"Could not contact the owner.\n\nReason: {e}")
 
-
-         
-
     # Function to show favorite properties
     def show_favorites():
         
@@ -1859,6 +1815,7 @@ def tenant_dashboard_open():
             widget.destroy()
 
         try:
+            
             
         # Subquery approach to safely get one image per property
             query = """
