@@ -54,8 +54,6 @@ main_frame=tb.Frame(root)
 
 profile_frame = tb.Frame(root)
 
-prop_detail_frame = tb.Frame(root)
-
 post_prop_frame = tb.Frame(root)
 
 my_tent_frame = tb.Frame(root)
@@ -890,6 +888,8 @@ def post_prop_open():
         if not title.get() or loc.get() == "" or not address.get() or not bhk.get() or not area.get() or fur.get() == "" or not age.get() or not desc.get() or not price_entry.get():
             messagebox.showerror("Error", "All Fields are Required")
             return
+        if price_entry.get().isalpha():
+            messagebox.showerror("Error", "Price needs to an integer")
         else:
             post_prop()
         
@@ -939,12 +939,12 @@ def post_prop_open():
         p_bhk = bhk.get()
         p_area = area.get()
         p_fur = fur.get()
-        p_park = park.get()
+        p_park = park
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get() 
         
-        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk}')"""
+        query = f"""insert into properties(property_id, owner_username, property_category, location_city, title, address, rent_price, bhk) values('{prop_id}', '{pfp_user_email}', '{p_cat}', '{p_loc}', '{p_tit}', '{p_add}', {p_price}, {p_bhk})"""
         cursor.execute(query)
         mycon.commit()
         
@@ -994,25 +994,22 @@ def post_prop_open():
 
 # >>>>>>>>>>>>>>>> PROP DETAIL FRAME <<<<<<<<<<<<<<<<
 
-def prop_det_open(pid):
-    
+def prop_det_open(pid,fr=profile_frame,t=False):
+    # gave fr as profile frame (has no roel) cuz it isnt required it is dummy
     # 1. Verify property exists first
     cursor.execute("SELECT 1 FROM properties WHERE property_id = %s", (pid,))
     if not cursor.fetchone():
         messagebox.showerror("Error", f"Property ID {pid} doesn't exist!")
         return
-
+    if t:
+        fr.forget()
     # 2. Only proceed if valid
+    prop_detail_frame = tb.Frame(root)
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
     cursor.execute("SELECT role FROM users WHERE username = %s", (pfp_user_email,))
     user_role = cursor.fetchone()[0]
-
-    if user_role == "Tenant":
-        tb.Button(pdet_btn_frame, text="Rent/Buy", bootstyle=SUCCESS,
-              command=lambda: rent_buy_property(pid, "Rent")).grid(row=3, column=1, pady=10)
-
 
     tb.Button(pdet_btn_frame, text="Go back", command=lambda: back_to_main_frame(prop_detail_frame, main_frame)).grid(row=0, column=0, pady=20, padx=20)
     tb.Separator(pdet_btn_frame, orient=VERTICAL).grid(row=0, column=1, padx=(20, 150), sticky=NS, rowspan=4)
@@ -1787,7 +1784,7 @@ def tenant_dashboard_open():
             fav_btn.pack(pady=2, fill=X)
 
             view_btn = tb.Button(btn_frame, text="View Details",
-                               command=lambda pid=pid: prop_det_open(pid))
+                               command=lambda pid=pid: prop_det_open(pid,tenant_frame,True))
             view_btn.pack(pady=2, fill=X)
             t="Buy" if pid.startswith("S") else "Rent"
 
@@ -1930,7 +1927,7 @@ def tenant_dashboard_open():
                 remove_btn.pack(pady=2, fill=X)
   
                 view_btn = tb.Button(btn_frame, text="View Details",
-                                 command=lambda pid=pid: prop_det_open(pid))
+                                 command=lambda pid=pid: prop_det_open(pid,tenant_frame,True))
                 view_btn.pack(pady=2, fill=X)
 
                 rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy", bootstyle=INFO,
