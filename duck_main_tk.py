@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 import mysql.connector as mys
 import os
 
+
 #BEFORE RUNNING THIS CODE..DROP YOUR DATABASE,CREATE IT AGAIN AND SOURCE YOUR DUMP FILE(dump20250414)
 
 # >>>>>>>>>>>>>>>> Define the main window <<<<<<<<<<<<<<<<
@@ -54,6 +55,8 @@ login_frame.pack(expand=True, fill='both')
 main_frame=tb.Frame(root)
 
 profile_frame = tb.Frame(root)
+
+prop_detail_frame = tb.Frame(root)
 
 post_prop_frame = tb.Frame(root)
 
@@ -869,7 +872,7 @@ def post_prop_open():
     Price_frame.grid(row=5, column=0, columnspan=3, padx=20, pady=20, sticky=tk.EW)
 
     # Price/Rent
-    price = tb.Label(Price_frame, text="Price/Rent:", font=("Montserrat", 12))
+    price = tb.Label(Price_frame, text="Price:", font=("Montserrat", 12))
     price.grid(column=0, row=0, sticky=tk.W, padx=20, pady=10)
     price_entry = tb.Entry(Price_frame, width=40)
     price_entry.grid(column=1, row=0, padx=10, pady=10, sticky=tk.EW)
@@ -895,8 +898,6 @@ def post_prop_open():
         if not title.get() or loc.get() == "" or not address.get() or not bhk.get() or not area.get() or fur.get() == "" or not age.get() or not desc.get() or not price_entry.get():
             messagebox.showerror("Error", "All Fields are Required")
             return
-        if price_entry.get().isalpha():
-            messagebox.showerror("Error", "Price needs to an integer")
         else:
             post_prop()
         
@@ -946,7 +947,7 @@ def post_prop_open():
         p_bhk = bhk.get()
         p_area = area.get()
         p_fur = fur.get()
-        p_park = park
+        p_park = park.get()
         p_age = age.get()
         p_desc = desc.get()
         p_price = price_entry.get()
@@ -1013,10 +1014,8 @@ def prop_det_open(pid):
     if not cursor.fetchone():
         messagebox.showerror("Error", f"Property ID {pid} doesn't exist!")
         return
-    if t:
-        fr.forget()
+
     # 2. Only proceed if valid
-    prop_detail_frame = tb.Frame(root)
     new_frame_open(prop_detail_frame, main_frame)
     pdet_btn_frame = tb.Frame(prop_detail_frame, width=0, height=750)
     pdet_btn_frame.grid(row=0, column=0, sticky=tk.NW, rowspan=17)
@@ -1231,13 +1230,11 @@ def my_tent_open():
 
             # Parking Availability
             tb.Label(Prop_dets_frame, text="Parking Availability", font=("Montserrat", 12)).grid(column=0, row=6, sticky=tk.W, padx=20, pady=10)
-            if epar:
-                park = True
-            else:
-                park = False
-            Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=1, bootstyle="info")
+            park = tk.BooleanVar(value=bool(epar))
+            
+            Yes = tb.Radiobutton(Prop_dets_frame, text="YES", variable=park, value=True, bootstyle="info")
             Yes.grid(row=6, column=1, padx=10, pady=10)
-            No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=0, bootstyle="info")
+            No = tb.Radiobutton(Prop_dets_frame, text="NO", variable=park, value=False, bootstyle="info")
             No.grid(row=6, column=2, padx=10, pady=10)
 
             # Age of Property
@@ -1744,7 +1741,7 @@ def tenant_dashboard_open():
             fav_btn.pack(pady=2, fill=X)
 
             view_btn = tb.Button(btn_frame, text="View Details",
-                               command=lambda pid=pid: prop_det_open(pid,tenant_frame,True))
+                               command=lambda pid=pid: prop_det_open(pid))
             view_btn.pack(pady=2, fill=X)
 
             rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy",
@@ -1884,7 +1881,7 @@ def tenant_dashboard_open():
                 remove_btn.pack(pady=2, fill=X)
   
                 view_btn = tb.Button(btn_frame, text="View Details",
-                                 command=lambda pid=pid: prop_det_open(pid,tenant_frame,True))
+                                 command=lambda pid=pid: prop_det_open(pid))
                 view_btn.pack(pady=2, fill=X)
 
                 rent_buy_btn = tb.Button(btn_frame, text="Rent/Buy", bootstyle=INFO,
