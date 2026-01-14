@@ -1603,6 +1603,13 @@ def tenant_dashboard_open():
     loc_combo = tb.Combobox(filter_frame, values=locations, state="readonly")
     loc_combo.pack(pady=5)
     loc_combo.current(0)
+    
+    #Rent/ Buy Filter
+    tb.Label(filter_frame, text="Transaction Type:").pack(pady=5)
+    trans_types = ["All Types", "Rent", "Buy"]
+    trans_combo = tb.Combobox(filter_frame, values=trans_types, state="readonly")
+    trans_combo.pack(pady=5)
+    trans_combo.current(0)
 
     # Apply filters button
     apply_btn = tb.Button(filter_frame, text="Apply Filters", bootstyle=SUCCESS,
@@ -1639,6 +1646,7 @@ def tenant_dashboard_open():
         price_filter = price_combo.get()
         type_filter = type_combo.get()
         loc_filter = loc_combo.get()
+        trans_filter = trans_combo.get()
 
         # Build SQL query based on filters
         query = """
@@ -1664,6 +1672,11 @@ def tenant_dashboard_open():
             query += f" AND p.property_category = '{type_filter}'"
         if loc_filter != "All Locations":
             query += f" AND p.location_city = '{loc_filter}'"
+        if trans_filter != "All Types":
+            if trans_filter == "Rent":
+                query += " AND p.property_id LIKE 'L%'"
+            else:
+                query += " AND p.property_id LIKE 'S%'"
 
         # Apply price filter
         if price_filter == "Under ₹20,000,000":
@@ -1726,6 +1739,11 @@ def tenant_dashboard_open():
             tb.Label(details_frame, text=f"Furnishing: {furnishing} | Area: {area} sqft").grid(row=4, column=0, sticky=W)
             tb.Label(details_frame, text=f"Price: ₹{price:,.2f}", font=("Arial", 10, "bold")).grid(row=5, column=0, sticky=W)
 
+            if pid.startswith("L"):
+                tb.Label(details_frame, text="For Rent", foreground="green", font=("Arial", 10, "bold")).grid(row=6, column=0, sticky=W)
+            else:
+                tb.Label(details_frame, text="For Sale", foreground="red", font=("Arial", 10, "bold")).grid(row=6, column=0, sticky=W)
+            
             # Action buttons
             btn_frame = tb.Frame(prop_frame)
             btn_frame.pack(side=RIGHT, padx=10)
@@ -1778,14 +1796,17 @@ def tenant_dashboard_open():
     # Function to handle rent/buy action
     def rent_buy_property(property_id,transaction_type):
     # Ask the user whether they want to Rent or Buy
-        choice = messagebox.askquestion("Rent or Buy", "Are you interested in **Renting** or **Buying** this property?", icon='question', type='yesnocancel', default='yes', detail="Click 'Yes' for Rent, 'No' for Buy, or Cancel to abort.")
+        choice = messagebox.askquestion("Confirmation", "Are you sure you wish to show interest in this property?", icon='question', type='yesnocancel', default='yes')
 
         if choice == "cancel":
             return
         elif choice == "yes":
-            transaction_type = "Rent"
+            if property_id.startswith("S"):
+                transaction_type = "Buy"
         elif choice == "no":
-            transaction_type = "Buy"
+            return
+            
+        
 
         try:
         # Insert the interest with proper padding (if needed)
@@ -1795,6 +1816,12 @@ def tenant_dashboard_open():
             cursor.execute("""
             INSERT IGNORE INTO interested_users (tenant_username, property_id, transaction_type)
             VALUES (%s, %s, %s) """, (pfp_user_email, property_id_padded, transaction_type))
+            
+            cursor.execute("""
+            INSERT IGNORE INTO tenant_properties (tenant_username, property_id, transaction_type)
+            VALUES (%s, %s, %s) """, (pfp_user_email, property_id_padded, transaction_type))
+            
+            
             mycon.commit()
 
         # Show success message
@@ -1916,6 +1943,7 @@ def tenant_dashboard_open():
             """, (pfp_user_email,))
            
             my_properties = cursor.fetchall()
+            print(my_properties)
            
             cursor.execute("SET SESSION sql_mode=(SELECT CONCAT(@@sql_mode,',ONLY_FULL_GROUP_BY'))")
            
