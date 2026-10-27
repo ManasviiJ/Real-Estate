@@ -27,11 +27,11 @@ This project was developed as part of our final high school Computer Science cur
 
 ## 📂 Project Structure
 
-```text
-├── assets/                 # Images, icons, and UI graphics
-├── database/               # SQL dump files and schema setup scripts
-├── modules/                # Core application logic and feature scripts
-├── main.py                 # Main application entry point
-├── db_config.py            # Database connection configuration
-├── requirements.txt        # Python package dependencies
-└── README.md               # Project documentation
+```Real-Estate/
+├── images/                   # Images, icons, and UI graphics (folder)
+├── .gitignore                # Added .gitignore file
+├── Dump20260102.sql          # SQL dump of the database
+├── README-GUYSS.txt          # Internal notes / documentation
+├── README.md                 # Project documentation
+├── main_jan26.py             # Main application entry point
+└── requirements.txt          # Python package dependencies
