@@ -1,157 +1,37 @@
-# Real-Estate
-*NOTE:* Do not directly edit the main_tk file instead send the code snippets to owner via Gmail. All data added to your local MySQL databases will not be reflected in the repository unless data has been imported to owner's database. For that contact owner.
+# Project Name 
 
-*SUGGESTION:* Create a new folder in your local pc and copy all files of Real-Estate in the folder and edit. Don't forget to import the MySQL data in your local database.
-
-> # FEATURES ADDED:
-1. a sign up page with working sign in and forgot password
-3. a profile page that displays minimum user data and option to log out
-0. displays role in profile page
-1. changing profile photo -> integrate w database
-
-> # FEATURES TO ADD:
-2. password reset option in profile page
-4. sidebar that contains buttons according to user role
-3. a home page that displays a search bar (working) and trending properties/ newly added properties
-
-> ### To Import the MySQL Data
-use re_estate;
-source <File\\Path\\with\\double\\slashes>\\<DumpFileName.sql>;
-ex:
-use re_estate;
-source D:\\comp_project\\code\\DumpFileName.sql;
-
-> # PROMPTS
-### **🏡 Profile Page Contents**
-
-**1️⃣ Common Sections (For All Users)**
-- **Profile Picture** (Editable)  
-- **Full Name**  
-- **Email Address**  
-- **Phone Number**  
-- **Role** (Owner, Tenant, Agent)  
-- **Password Reset Option**  
-
- **2️⃣ For Property Owners**
-- **Listed Properties** (Grid/List View with images, price, status)  
-- **Earnings Dashboard** (Rental income, pending payments, analytics)  
-- **Tenant Requests** (Maintenance requests, inquiries)  
-- **Add New Property** (Button to add new listings)  
-- **Property Performance Reports** (Occupancy rate, rental trends)  
-
- **3️⃣ For Tenants**
-- **Rented Property Details** (Address, rent amount, lease duration)  
-- **Rent Payment Status** (Paid, Due, Overdue)  
-- **Maintenance Requests** (Raise & track service requests)  
-- **Lease Documents** (Access signed lease agreements)  
-- **Payment History** (List of past payments)  
-
- **4️⃣ For Real Estate Agents**
-- **Managed Properties** (Properties assigned to them)  
-- **Client Inquiries** (New leads, interested buyers/renters)  
-- **Upcoming Appointments** (Schedule with clients)  
-- **Commission Dashboard** (Earned commissions, pending payments)  
-- **Documents & Agreements** (Upload property papers, contracts)
-
-> # THE BASIC BLUEPRINT
-# **Blueprint for Real Estate Management App**
-
-## **User Flow**
-1. **User Opens App**
-   - *Extra Feature:* Auctions by Banks
-
-2. **Login Page**
-   - Existing Users: Login with User ID & Password
-   - New Users: Create an Account (Name, Email ID, Phone Number)
-   - Forgot Password Option
-
-3. **Profile Setup Page**
-   - Name
-   - Email ID
-   - Phone Number
+> A comprehensive desktop application built as a 2-year Grade 12 Computer Science graded assessment project, designed for collaborative data management using Python and MySQL.
 
 ---
 
-## **Main Features & Pages**
+## 📌 About The Project
 
-### **1. Update Profile Page**
-- Users can edit Name, Email ID, and Phone Number
+This project was developed as part of our final high school Computer Science curriculum. The objective was to build a fully functional, desktop-based graphical user interface (GUI) application connected to a robust relational database backend to handle real-world CRUD (Create, Read, Update, Delete) operations. 
 
-### **2. Home Page**
-- Displays user information:
-  - Name
-  - Email ID
-  - Phone Number
-  - User ID
-  - Contacted Properties
-
-### **3. Post Your Property**
-- Users can list properties with the following details:
-  - Address (Street, City, State)
-  - Area (sqft)
-  - Number of Rooms
-  - Floor
-  - Rent/Sale Price
-  - Deposit (if applicable)
-  - Contact Number
-  - Email
-  - Photos
-  - Date of Posting
-
-### **4. Search Properties**
-- **Search by Location** (City, State, *Bengaluru only*)
-  
-  #### **(a) Buying/Renting**
-  - Buy a House
-  - Rent a House
-  - Rent a Commercial Plot
-  - Rent a Commercial Room
-  - Buy a Plot
-  
-  #### **(b) Co-Living/PG/Hostel**
-  - Rent a PG
-  - Hostel for Kids (Under 18) *(Includes Guardian Details)*
-
-### **5. Property Categories**
-
-#### **Selling**
-- Put up House for Lease (Rent)
-- Put up House for Sale
-- Put up Commercial Plot for Lease
-- Put up Plot for Sale
-- Put up Commercial Room for Lease
-- Put up Commercial Room for Sale
-
-#### **Buying/Renting**
-- Buy a House
-- Rent a House
-- Rent a Commercial Plot
-- Rent a Commercial Room
-- Buy a Plot
+### Key Highlights
+* **Pure Python Architecture:** Built entirely using Python, leveraging desktop GUI frameworks for an interactive user experience.
+* **Database Integration:** Integrated seamlessly with **MySQL** for secure, structured, and persistent data storage.
+* **Collaborative Workflow:** Maintained and developed collaboratively by a team using Git and GitHub for version control.
 
 ---
 
-## **Extra Features**
+## 🛠️ Tech Stack
 
-### **1. Rent a House with Multiple Partners**
-- Shared Rent Option *(Total Rent / No. of Persons)*
-- Timeline & Pooling System
-
-### **2. Auctions by Banks**
-- Properties available through bank auctions
-- Bidding System
-
-### **3. Hostel for Kids (Under 18)**
-- Includes Guardian Details
+* **Programming Language:** Python 3.x
+* **GUI Framework:** Tkinter *(or specify your framework, e.g., PyQt / PySide / wxPython)*
+* **Database Management System:** MySQL
+* **Database Connector:** `mysql-connector-python` *(or `PyMySQL`)*
+* **Version Control:** Git & GitHub
 
 ---
 
-### **Future Enhancements**
-- AI-based property recommendations
-- Verified Listings
-- Secure Payment Gateway for Transactions
+## 📂 Project Structure
 
----
-
-This structured blueprint ensures clarity and usability for seamless real estate transactions!
-
+```text
+├── assets/                 # Images, icons, and UI graphics
+├── database/               # SQL dump files and schema setup scripts
+├── modules/                # Core application logic and feature scripts
+├── main.py                 # Main application entry point
+├── db_config.py            # Database connection configuration
+├── requirements.txt        # Python package dependencies
+└── README.md               # Project documentation
