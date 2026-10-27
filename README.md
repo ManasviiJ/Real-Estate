@@ -18,9 +18,9 @@ This project was developed as part of our final high school Computer Science cur
 ## 🛠️ Tech Stack
 
 * **Programming Language:** Python 3.x
-* **GUI Framework:** Tkinter *(or specify your framework, e.g., PyQt / PySide / wxPython)*
+* **GUI Framework:** Ttkbootstrap
 * **Database Management System:** MySQL
-* **Database Connector:** `mysql-connector-python` *(or `PyMySQL`)*
+* **Database Connector:** `mysql-connector-python`
 * **Version Control:** Git & GitHub
 
 ---
